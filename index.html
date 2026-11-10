@@ -148,7 +148,7 @@ img,svg{display:block}
 .duo .mini-phone.third{--rot:7deg;--ty:28px}
 .duo .mini-phone:hover,.duo .mini-phone:focus-visible{--lift:28px;--grow:1.04;z-index:10 !important;box-shadow:0 40px 70px rgba(0,0,0,.35),0 0 0 4px rgba(244,182,191,.55)}
 .duo .mini-phone:active{--lift:18px;--grow:.99;transition-duration:.12s}
-.tap-hint{margin:-6px 0 0;font-size:14px;color:#E6EFE8;opacity:.8}
+.tap-hint{margin:0;font-size:14px;color:#E6EFE8;opacity:.8}
 .step{transition:transform .4s cubic-bezier(.34,1.56,.64,1),box-shadow .4s,background .4s;scroll-margin-top:120px}
 .step.flash{animation:flash 1.6s ease}
 @keyframes flash{0%{transform:scale(1)}15%{transform:scale(1.06);background:var(--rose-soft);box-shadow:0 0 0 4px var(--blush),var(--shadow)}60%{transform:scale(1.02);background:var(--rose-soft)}100%{transform:scale(1);background:#fff}}
@@ -247,10 +247,10 @@ footer b{color:#fff}
         <p>Bring your people along. Your friends cheer you on, help you shine, and have your back from first match to first date.</p>
         <div class="actions">
           <a class="btn light" href="#join">Join the waitlist</a>
-          <a class="btn ghost" href="#how">See how it works</a>
         </div>
       </div>
       <figure class="duo" aria-label="A match, questions from your friends at check-in, then your friends' picks for what to do next">
+        <p class="tap-hint">Tap a screen to see how it works</p>
         <div class="duo-phones">
           <div class="mini-phone left" data-target="step-1" aria-label="Match and plan a date: see how it works">
             <div class="screen">
@@ -293,7 +293,6 @@ footer b{color:#fff}
           </div>
         </div>
         <div class="duo-labels"><span><i>1</i>Match and plan a date</span><span><i>2</i>Check in and unlock questions</span><span><i>3</i>Keep it going, together</span></div>
-        <p class="tap-hint">Tap a screen to see how it works</p>
       </figure>
     </div>
   </div>
