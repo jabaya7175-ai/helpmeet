@@ -4,6 +4,7 @@ Live at: https://jabaya7175-ai.github.io/helpmeet/ (once GitHub Pages is turned 
 
 ## Files
 - `index.html`: the landing page, connected to the Supabase waitlist.
+- `demo.html`: a clickable demo of the dater experience (match, plan, friend prep, check-in code, questions, keep going). Nothing is saved. Not linked from the main page; share the address directly.
 - `privacy.html`: plain-language privacy page for the waitlist. Replace `[CONTACT EMAIL]` before sharing.
 - `og.png`: the preview image shown when the link is shared in texts and social posts.
 - `schema.sql`: the waitlist table and `join_waitlist()` function (already applied in Supabase), plus traction queries.
