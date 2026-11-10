@@ -232,6 +232,19 @@ footer b{color:#fff}
 }
 .nav .btn.login{display:inline-flex!important;background:transparent;color:#fff;box-shadow:inset 0 0 0 2px rgba(255,255,255,.5)}
 .nav .btn.login:hover{background:rgba(255,255,255,.1)}
+.lg-back{position:fixed;inset:0;z-index:100;background:rgba(25,58,41,.55);display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px)}
+.lg-back.on{display:flex}
+.lg{width:100%;max-width:380px;background:var(--bg);border-radius:28px;padding:26px 24px 22px;box-shadow:0 30px 70px rgba(0,0,0,.3);display:flex;flex-direction:column;gap:10px;position:relative;animation:lgIn .3s cubic-bezier(.34,1.56,.64,1)}
+@keyframes lgIn{from{transform:scale(.92);opacity:0}to{transform:none;opacity:1}}
+.lg h2{margin:0 0 4px;font-size:28px;font-weight:600;color:var(--ink)}
+.lg h2 span{color:var(--rose)}
+.lg label{font-size:16px;font-weight:700;color:var(--ink)}
+.lg input{height:50px;border:1.5px solid var(--line);background:#fff;border-radius:16px;padding:0 14px;font:400 17px 'Source Serif 4',Georgia,serif;color:var(--ink);outline:none}
+.lg input:focus{border-color:var(--green)}
+.lg .err{font-size:14px;color:var(--rose);min-height:18px}
+.lg .x{position:absolute;top:12px;right:14px;border:none;background:none;font-size:26px;line-height:1;color:var(--muted);cursor:pointer;padding:6px}
+.lg .btn{margin-top:4px;width:100%}
+.lg small{font-size:14px;color:var(--muted);text-align:center}
 </style>
 </head>
 <body>
@@ -240,7 +253,7 @@ footer b{color:#fff}
   <div class="wrap">
     <nav class="nav" aria-label="Main">
       <a class="logo" href="#top">Help<span>Meet</span></a>
-      <a class="btn ghost login" href="demo.html">Log in</a>
+      <a class="btn ghost login" href="demo.html" id="loginBtn">Log in</a>
     </nav>
     <div class="hero" id="top">
       <div>
@@ -552,6 +565,41 @@ document.querySelectorAll('.mini-phone[data-target]').forEach((phone) => {
    el.style.transform='translateY(-60px)';el.style.opacity=0;
   }
   setTimeout(function(){el.style.transition='none';},260);
+ });
+})();
+</script>
+<div class="lg-back" id="lgBack" role="dialog" aria-modal="true" aria-labelledby="lgTitle">
+<form class="lg" id="lgForm" autocomplete="on">
+<button type="button" class="x" id="lgClose" aria-label="Close">×</button>
+<h2 id="lgTitle">Log in to Help<span>Meet</span></h2>
+<label for="lgU">Username</label>
+<input id="lgU" name="username" autocomplete="username" autocapitalize="none" autocorrect="off" required>
+<label for="lgP">Password</label>
+<input id="lgP" name="password" type="password" autocomplete="current-password" required>
+<span class="err" id="lgErr" aria-live="polite"></span>
+<button type="submit" class="btn">Log in</button>
+<small>Not on the list yet? <a href="#join" id="lgJoin">Join the waitlist</a></small>
+</form></div>
+<script>
+(function(){
+ var KEY='376855e6cbdd37e87eb523d49cfcbb506ad1ae1992ff39f1ee86f9bde0a53692';
+ var DEMO=/claude|usercontent|^$/.test(location.hostname)?'https://jabaya7175-ai.github.io/helpmeet/demo.html':'demo.html';
+ var back=document.getElementById('lgBack'),f=document.getElementById('lgForm'),err=document.getElementById('lgErr');
+ function open(e){if(e)e.preventDefault();back.classList.add('on');err.textContent='';setTimeout(function(){document.getElementById('lgU').focus()},50);}
+ function close(){back.classList.remove('on');}
+ document.getElementById('loginBtn').addEventListener('click',open);
+ document.getElementById('lgClose').addEventListener('click',close);
+ document.getElementById('lgJoin').addEventListener('click',close);
+ back.addEventListener('click',function(e){if(e.target===back)close();});
+ addEventListener('keydown',function(e){if(e.key==='Escape')close();});
+ f.addEventListener('submit',function(e){
+  e.preventDefault();
+  var u=document.getElementById('lgU').value.trim().toLowerCase(),p=document.getElementById('lgP').value;
+  crypto.subtle.digest('SHA-256',new TextEncoder().encode(u+':'+p)).then(function(b){
+   var h=Array.from(new Uint8Array(b)).map(function(x){return x.toString(16).padStart(2,'0')}).join('');
+   if(h===KEY){location.href=DEMO+'#k='+h;}
+   else{err.textContent="That username or password doesn't match.";document.getElementById('lgP').value='';}
+  });
  });
 })();
 </script>
