@@ -353,7 +353,8 @@ function vMatches(){
  let status='New match: plan a date';
  if(st.planned) status='Date '+TIMES[st.time];
  const rows=[];
- if(st.matched) rows.push({img:IMG.emily,name:'Emily, 25',meta:'Presbyterian · Keller',status,friends:true,act:'openEmily'});
+ if(!st.matched) status='Likes you · tap to match';
+ rows.push({img:IMG.emily,name:'Emily, 25',meta:'Presbyterian · Keller',status,friends:true,act:'openEmily'});
  rows.push({i:'M',name:'Miriam, 27',meta:'Anglican · Fort Worth',status:'Liked you · say hi',friends:false},
   {i:'R',name:'Ruth, 29',meta:'Non-denominational · Grapevine',status:'Chatting',friends:true},
   {i:'A',name:'Abigail, 25',meta:'Presbyterian (PCA) · Southlake',status:'Chatting',friends:false});
@@ -449,6 +450,7 @@ function go(v){st.view=v;render();}
 function render(){
  const m={login:vLogin,discover:vDiscover,match:vMatch,plan:vPlan,dates:vDates,'dates-before':vDates,'dates-check':vDates,friend:vFriend,prompts:vPrompts,after:vAfter,second:vSecond,again:vAgain,done:vDone,matches:vMatches,profile:vProfile};
  document.getElementById('app').innerHTML=m[st.view]();
+ try{sessionStorage.setItem('hmState',JSON.stringify(Object.assign({},st,{seen:[...st.seen],liked:[...st.liked],friends:[...st.friends]})))}catch(e){}
  document.getElementById('hint').innerHTML=(HINTS[st.view]||(()=>''))();fit();
 }
 let tt;
@@ -502,7 +504,7 @@ document.getElementById('app').addEventListener('click',e=>{
   case 'toDone': return go('done');
   case 'planNext': st.dateNum++;Object.assign(st,{planned:false,friendDone:false,fP1:'',fP2:'',fA1:'',fA2:'',youIn:false,herIn:false,codeErr:false,unlocked:false,pIdx:0,keep:null,herKeep:false,pick:0,ended:null,dateDay:false,again:null,herAgain:false});return go('plan');
   case 'restart': return reset();
-  case 'openEmily': return go(st.planned?datesView():'plan');
+  case 'openEmily': if(!st.matched){st.matched=true;st.liked.add(EMILY);return go('match');} return go(st.planned?datesView():'plan');
   case 'other': return toast('In this demo, Emily\'s date is the playable one.');
   case 'church': st.church=i;return render();
   case 'invite': return toast('Invite link copied.');
@@ -519,7 +521,7 @@ document.getElementById('app').addEventListener('submit',e=>{
 });
 document.getElementById('app').addEventListener('change',e=>{if(e.target.id==='showChurch'){st.showChurch=e.target.checked;render();}});
 document.getElementById('app').addEventListener('keydown',e=>{if(e.target.id==='code'&&e.key==='Enter'){document.querySelector('[data-act="unlock"]').click();}});
-document.getElementById('restart').addEventListener('click',reset);
+document.getElementById('restart').addEventListener('click',()=>{try{sessionStorage.removeItem('hmState')}catch(e){}reset();});
 
 function fit(){
  const d=document.getElementById('device'),h=document.getElementById('holder');
@@ -533,7 +535,13 @@ function fit(){
  d.style.transform=`scale(${s})`;d.style.marginBottom=`${-(844*(1-s))}px`;
 }
 addEventListener('resize',fit);
-reset();fit();
+(function(){
+ try{
+  const j=JSON.parse(sessionStorage.getItem('hmState')||'null');
+  if(j&&j.loggedIn){Object.assign(st,j,{seen:new Set(j.seen),liked:new Set(j.liked),friends:new Set(j.friends),youIn:j.youIn,herIn:j.youIn?true:j.herIn,herKeep:j.keep?true:j.herKeep,herAgain:j.again?true:j.herAgain});return render();}
+ }catch(e){}
+ reset();
+})();fit();
 </script>
 <script>
 /* Pull down to refresh (for the home-screen app, which has no reload button) */
