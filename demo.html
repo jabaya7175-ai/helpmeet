@@ -121,8 +121,8 @@ function reset(){
  Object.assign(st,{view:'discover',idx:0,seen:new Set([0]),liked:new Set(),matched:false,planned:false,
   place:0,time:1,friends:new Set([0,1]),friendDone:false,fType:0,fP1:'',fP2:'',fA1:'',fA2:'',
   youIn:false,herIn:false,codeErr:false,unlocked:false,pIdx:0,keep:null,herKeep:false,pick:0,
-  church:2,showChurch:false,ended:null,dateDay:false});
- go('discover');
+  church:2,showChurch:false,ended:null,dateDay:false,loginErr:false});
+ go(st.loggedIn?'discover':'login');
 }
 const PLACES=[{n:'Coffee on Main',a:'Keller Town Center'},{n:'Bakery café',a:'Old Town Keller'},{n:'Botanic garden walk',a:'Fort Worth'}];
 const TIMES=['Fri · 6:30 pm','Sat · 10:00 am','Sun · 1:00 pm'];
@@ -391,6 +391,22 @@ function vFriend(){
 <button type="button" data-act="friendOut" style="height:44px;border:none;background:none;color:#66595A;font:500 16px ${F}">I know this person: step out of this date</button></div></div>`;
 }
 
+
+function vLogin(){
+ return `<div style="${S.root('24px 24px 40px',16)}background:#24513A;color:#fff;justify-content:center">
+<div style="text-align:center;display:flex;flex-direction:column;gap:6px;margin-bottom:10px">
+<span style="font-size:40px;font-weight:700">Help<span style="color:#F4B6BF">Meet</span></span>
+<span style="font-size:17px;color:#E6EFE8">Christian Dating, Together</span></div>
+<form id="loginForm" style="display:flex;flex-direction:column;gap:10px;padding:20px;border-radius:28px;background:#FAF6F2;color:#231B1B">
+<label for="lu" style="font-size:16px;font-weight:700">Username</label>
+<input id="lu" autocomplete="username" autocapitalize="none" style="${S.input}height:50px;font-size:17px">
+<label for="lp" style="font-size:16px;font-weight:700">Password</label>
+<input id="lp" type="password" autocomplete="current-password" style="${S.input}height:50px;font-size:17px">
+${st.loginErr?'<span style="font-size:14px;color:#8E3F4C">That doesn\'t match. Use the demo login below.</span>':''}
+<button type="submit" style="height:54px;margin-top:6px;${S.primary}">Log in</button>
+<span style="font-size:14px;color:#66595A;text-align:center">Demo login: <b>joshua</b> / <b>helpmeet</b></span>
+</form></div>`;
+}
 /* ---------- Router ---------- */
 const HINTS={
  discover:()=>st.liked.has(EMILY)?'':st.idx===EMILY?'Read Emily\'s card, then tap <b>Like</b>.':'Swipe through Today\'s 7 with <b>Pass</b>. Emily is the friends-suggested card.',
@@ -401,11 +417,11 @@ const HINTS={
  'dates-check':()=>st.youIn&&st.herIn?'Enter the code <b>4817</b>.':'Tap <b>I\'m here</b> to check in.',
  prompts:()=>'Use them, skip them, or tap <b>End date</b>.',
  after:()=>st.keep===null?'Answer privately: keep going?':'',
- done:()=>'',matches:()=>'',profile:()=>'Church settings: try the three options.'
+ login:()=>'Log in with <b>joshua</b> / <b>helpmeet</b>.',done:()=>'',matches:()=>'',profile:()=>'Church settings: try the three options.'
 };
 function go(v){st.view=v;render();}
 function render(){
- const m={discover:vDiscover,match:vMatch,plan:vPlan,dates:vDates,'dates-before':vDates,'dates-check':vDates,friend:vFriend,prompts:vPrompts,after:vAfter,done:vDone,matches:vMatches,profile:vProfile};
+ const m={login:vLogin,discover:vDiscover,match:vMatch,plan:vPlan,dates:vDates,'dates-before':vDates,'dates-check':vDates,friend:vFriend,prompts:vPrompts,after:vAfter,done:vDone,matches:vMatches,profile:vProfile};
  document.getElementById('app').innerHTML=m[st.view]();
  document.getElementById('hint').innerHTML=(HINTS[st.view]||(()=>''))();fit();
 }
@@ -460,6 +476,12 @@ document.getElementById('app').addEventListener('click',e=>{
   case 'church': st.church=i;return render();
   case 'invite': return toast('Invite link copied.');
  }
+});
+document.getElementById('app').addEventListener('submit',e=>{
+ if(e.target.id!=='loginForm')return;e.preventDefault();
+ const u=document.getElementById('lu').value.trim().toLowerCase(),p=document.getElementById('lp').value;
+ if(u==='joshua'&&p==='helpmeet'){st.loggedIn=true;st.loginErr=false;return go('discover');}
+ st.loginErr=true;render();
 });
 document.getElementById('app').addEventListener('change',e=>{if(e.target.id==='showChurch'){st.showChurch=e.target.checked;render();}});
 document.getElementById('app').addEventListener('keydown',e=>{if(e.target.id==='code'&&e.key==='Enter'){document.querySelector('[data-act="unlock"]').click();}});
