@@ -153,6 +153,15 @@ img,svg{display:block}
 .step.flash{animation:flash 1.6s ease}
 @keyframes flash{0%{transform:scale(1)}15%{transform:scale(1.06);background:var(--rose-soft);box-shadow:0 0 0 4px var(--blush),var(--shadow)}60%{transform:scale(1.02);background:var(--rose-soft)}100%{transform:scale(1);background:#fff}}
 @media (prefers-reduced-motion:reduce){.duo .mini-phone,.step{transition:none}.step.flash{animation:none;background:var(--rose-soft)}}
+
+/* mobile: shrink the three phones as a group so they fit without sideways scrolling */
+@media (max-width:760px){
+  .duo-phones{overflow:visible !important;justify-content:center !important;margin:0 !important;padding:10px 0 52px !important;scroll-snap-type:none !important;max-width:none !important;zoom:.72}
+  .mini-phone{flex-shrink:0}
+}
+@media (max-width:560px){.duo-phones{zoom:.52}}
+@media (max-width:400px){.duo-phones{zoom:.47}}
+@media (max-width:350px){.duo-phones{zoom:.42}}
 /* sections */
 section{padding:88px 0}
 .eyebrow{font-size:15px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--rose)}
