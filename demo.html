@@ -481,7 +481,7 @@ document.getElementById('app').addEventListener('submit',e=>{
  const u=document.getElementById('lu').value.trim().toLowerCase(),p=document.getElementById('lp').value;
  crypto.subtle.digest('SHA-256',new TextEncoder().encode(u+':'+p)).then(b=>{
   const h=[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');
-  if(h==='f0439f99c089afa3e80039f6ffe529fe61bc80a6ccd51e9751576e9c3c74f82f'){st.loggedIn=true;st.loginErr=false;try{sessionStorage.setItem('hmIn','1')}catch(e){}return go('discover');}
+  if(h==='376855e6cbdd37e87eb523d49cfcbb506ad1ae1992ff39f1ee86f9bde0a53692'){st.loggedIn=true;st.loginErr=false;try{sessionStorage.setItem('hmIn','1')}catch(e){}return go('discover');}
   st.loginErr=true;render();
  });
 });
