@@ -1,0 +1,18 @@
+# Free Supabase projects pause after about a week without activity.
+# This pings the waitlist database every 3 days so the sign-up form keeps working.
+name: Keep waitlist database awake
+on:
+  schedule:
+    - cron: "17 14 */3 * *"
+  workflow_dispatch:
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase
+        run: |
+          curl -fsS -X POST "https://cxsyqbvcqkuiidmcqrxo.supabase.co/rest/v1/rpc/ping" \
+            -H "apikey: ${{ env.ANON }}" -H "Authorization: Bearer ${{ env.ANON }}" \
+            -H "Content-Type: application/json" -d '{}'
+        env:
+          ANON: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN4c3lxYnZjcWt1aWlkbWNxcnhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU5NTAwNjMsImV4cCI6MjEwMTUyNjA2M30.tQrNcW1_yUW1AhudBLuOrO6ySyVJ8OT_fZeIdeK_XHc
