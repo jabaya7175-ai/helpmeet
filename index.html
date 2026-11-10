@@ -141,6 +141,18 @@ img,svg{display:block}
 .mini-phone .screen{height:410px !important}
 .opt{padding:8px 12px !important}
 .own{font-size:15px;padding:6px 0 2px}
+
+/* interactive phones */
+.duo .mini-phone{--rot:0deg;--ty:0px;--lift:0px;--grow:1;transform:rotate(var(--rot)) translateY(calc(var(--ty) - var(--lift))) scale(var(--grow)) !important;transition:transform .45s cubic-bezier(.34,1.56,.64,1),box-shadow .35s ease;cursor:pointer;outline:none}
+.duo .mini-phone.left{--rot:-7deg;--ty:28px}
+.duo .mini-phone.third{--rot:7deg;--ty:28px}
+.duo .mini-phone:hover,.duo .mini-phone:focus-visible{--lift:28px;--grow:1.04;z-index:10 !important;box-shadow:0 40px 70px rgba(0,0,0,.35),0 0 0 4px rgba(244,182,191,.55)}
+.duo .mini-phone:active{--lift:18px;--grow:.99;transition-duration:.12s}
+.tap-hint{margin:-6px 0 0;font-size:14px;color:#E6EFE8;opacity:.8}
+.step{transition:transform .4s cubic-bezier(.34,1.56,.64,1),box-shadow .4s,background .4s;scroll-margin-top:120px}
+.step.flash{animation:flash 1.6s ease}
+@keyframes flash{0%{transform:scale(1)}15%{transform:scale(1.06);background:var(--rose-soft);box-shadow:0 0 0 4px var(--blush),var(--shadow)}60%{transform:scale(1.02);background:var(--rose-soft)}100%{transform:scale(1);background:#fff}}
+@media (prefers-reduced-motion:reduce){.duo .mini-phone,.step{transition:none}.step.flash{animation:none;background:var(--rose-soft)}}
 /* sections */
 section{padding:88px 0}
 .eyebrow{font-size:15px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--rose)}
@@ -231,7 +243,7 @@ footer b{color:#fff}
       </div>
       <figure class="duo" aria-label="A match, questions from your friends at check-in, then your friends' picks for what to do next">
         <div class="duo-phones">
-          <div class="mini-phone left" aria-hidden="true">
+          <div class="mini-phone left" data-target="step-1" aria-label="Match and plan a date: see how it works">
             <div class="screen">
               <div class="bar"><small>New match</small><b>It's a match!</b></div>
               <div class="body">
@@ -244,7 +256,7 @@ footer b{color:#fff}
               </div>
             </div>
           </div>
-          <div class="mini-phone right" aria-hidden="true">
+          <div class="mini-phone right" data-target="step-3" aria-label="Check in and unlock questions: see how it works">
             <div class="screen">
               <div class="bar"><small>Saturday · Coffee with Emily</small><b>You're both here!</b></div>
               <div class="body">
@@ -256,7 +268,7 @@ footer b{color:#fff}
               </div>
             </div>
           </div>
-          <div class="mini-phone third" aria-hidden="true">
+          <div class="mini-phone third" data-target="step-4" aria-label="Keep it going, together: see how it works">
             <div class="screen">
               <div class="bar"><small>Keep going?</small><b>You both said yes!</b></div>
               <div class="body">
@@ -272,6 +284,7 @@ footer b{color:#fff}
           </div>
         </div>
         <div class="duo-labels"><span><i>1</i>Match and plan a date</span><span><i>2</i>Check in and unlock questions</span><span><i>3</i>Keep it going, together</span></div>
+        <p class="tap-hint">Tap a screen to see how it works</p>
       </figure>
     </div>
   </div>
@@ -284,10 +297,10 @@ footer b{color:#fff}
       <h2>Your people, in your corner.</h2>
       <p class="lead">No endless swiping. A few thoughtful matches a day, and the people who know you best helping the date go well.</p>
       <ol class="steps">
-        <li class="step"><div class="num">1</div><h3>Get 7 matches a day</h3><p>Thoughtful profiles with church tradition, membership and what matters to you.</p></li>
-        <li class="step"><div class="num">2</div><h3>Friends prepare the date</h3><p>Up to three friends read your match's profile and write questions that bring out your best stories.</p></li>
-        <li class="step"><div class="num">3</div><h3>Check in, unlock</h3><p>When you both arrive, a code unlocks the questions. Use them, skip them, or just talk.</p></li>
-        <li class="step"><div class="num">4</div><h3>Keep going, if you both want</h3><p>Having a good time? If you both say yes, your friends' ideas for what to do next unlock right there.</p></li>
+        <li class="step" id="step-1"><div class="num">1</div><h3>Get 7 matches a day</h3><p>Thoughtful profiles with church tradition, membership and what matters to you.</p></li>
+        <li class="step" id="step-2"><div class="num">2</div><h3>Friends prepare the date</h3><p>Up to three friends read your match's profile and write questions that bring out your best stories.</p></li>
+        <li class="step" id="step-3"><div class="num">3</div><h3>Check in, unlock</h3><p>When you both arrive, a code unlocks the questions. Use them, skip them, or just talk.</p></li>
+        <li class="step" id="step-4"><div class="num">4</div><h3>Keep going, if you both want</h3><p>Having a good time? If you both say yes, your friends' ideas for what to do next unlock right there.</p></li>
       </ol>
     </div>
   </section>
@@ -463,6 +476,22 @@ document.getElementById('copy').addEventListener('click', async (e) => {
   try { await navigator.clipboard.writeText(input.value); e.target.textContent = 'Copied'; }
   catch { input.select(); e.target.textContent = 'Select & copy'; }
   setTimeout(() => (e.target.textContent = 'Copy'), 2000);
+});
+
+// Phones in the hero: hover lifts them; click or Enter jumps to the matching step and highlights it.
+document.querySelectorAll('.mini-phone[data-target]').forEach((phone) => {
+  phone.tabIndex = 0;
+  phone.setAttribute('role', 'link');
+  const go = () => {
+    const step = document.getElementById(phone.dataset.target);
+    if (!step) return;
+    step.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    step.classList.remove('flash');
+    void step.offsetWidth;
+    setTimeout(() => step.classList.add('flash'), 350);
+  };
+  phone.addEventListener('click', go);
+  phone.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
 });
 </script>
 </body>
