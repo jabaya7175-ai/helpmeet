@@ -116,7 +116,7 @@ const PEOPLE=[
 ];
 const EMILY=2;
 
-const st={};
+const st={};try{st.loggedIn=sessionStorage.getItem('hmIn')==='1'}catch(e){}
 function reset(){
  Object.assign(st,{view:'discover',idx:0,seen:new Set([0]),liked:new Set(),matched:false,planned:false,
   place:0,time:1,friends:new Set([0,1]),friendDone:false,fType:0,fP1:'',fP2:'',fA1:'',fA2:'',
@@ -402,9 +402,8 @@ function vLogin(){
 <input id="lu" autocomplete="username" autocapitalize="none" style="${S.input}height:50px;font-size:17px">
 <label for="lp" style="font-size:16px;font-weight:700">Password</label>
 <input id="lp" type="password" autocomplete="current-password" style="${S.input}height:50px;font-size:17px">
-${st.loginErr?'<span style="font-size:14px;color:#8E3F4C">That doesn\'t match. Use the demo login below.</span>':''}
+${st.loginErr?'<span style="font-size:14px;color:#8E3F4C">That username or password doesn\'t match.</span>':''}
 <button type="submit" style="height:54px;margin-top:6px;${S.primary}">Log in</button>
-<span style="font-size:14px;color:#66595A;text-align:center">Demo login: <b>joshua</b> / <b>helpmeet</b></span>
 </form></div>`;
 }
 /* ---------- Router ---------- */
@@ -417,7 +416,7 @@ const HINTS={
  'dates-check':()=>st.youIn&&st.herIn?'Enter the code <b>4817</b>.':'Tap <b>I\'m here</b> to check in.',
  prompts:()=>'Use them, skip them, or tap <b>End date</b>.',
  after:()=>st.keep===null?'Answer privately: keep going?':'',
- login:()=>'Log in with <b>joshua</b> / <b>helpmeet</b>.',done:()=>'',matches:()=>'',profile:()=>'Church settings: try the three options.'
+ login:()=>'',done:()=>'',matches:()=>'',profile:()=>'Church settings: try the three options.'
 };
 function go(v){st.view=v;render();}
 function render(){
@@ -480,8 +479,11 @@ document.getElementById('app').addEventListener('click',e=>{
 document.getElementById('app').addEventListener('submit',e=>{
  if(e.target.id!=='loginForm')return;e.preventDefault();
  const u=document.getElementById('lu').value.trim().toLowerCase(),p=document.getElementById('lp').value;
- if(u==='joshua'&&p==='helpmeet'){st.loggedIn=true;st.loginErr=false;return go('discover');}
- st.loginErr=true;render();
+ crypto.subtle.digest('SHA-256',new TextEncoder().encode(u+':'+p)).then(b=>{
+  const h=[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');
+  if(h==='f0439f99c089afa3e80039f6ffe529fe61bc80a6ccd51e9751576e9c3c74f82f'){st.loggedIn=true;st.loginErr=false;try{sessionStorage.setItem('hmIn','1')}catch(e){}return go('discover');}
+  st.loginErr=true;render();
+ });
 });
 document.getElementById('app').addEventListener('change',e=>{if(e.target.id==='showChurch'){st.showChurch=e.target.checked;render();}});
 document.getElementById('app').addEventListener('keydown',e=>{if(e.target.id==='code'&&e.key==='Enter'){document.querySelector('[data-act="unlock"]').click();}});
@@ -500,6 +502,56 @@ function fit(){
 }
 addEventListener('resize',fit);
 reset();fit();
+</script>
+<script>
+/* Pull down to refresh (for the home-screen app, which has no reload button) */
+(function(){
+ if(!('ontouchstart' in window))return;
+ var el=document.createElement('div');
+ el.setAttribute('aria-hidden','true');
+ el.style.cssText='position:fixed;left:50%;top:0;z-index:9999;width:44px;height:44px;margin-left:-22px;border-radius:999px;background:#FAF6F2;color:#24513A;box-shadow:0 6px 16px rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;transform:translateY(-60px);opacity:0;transition:none;pointer-events:none';
+ el.innerHTML='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v5h-5"/></svg>';
+ document.body.appendChild(el);
+ var y0=null,dy=0,T=80,busy=false;
+ function scroller(n){
+  for(;n&&n!==document.body&&n.nodeType===1;n=n.parentNode){
+   var s=getComputedStyle(n);
+   if(/(auto|scroll)/.test(s.overflowY)&&n.scrollHeight>n.clientHeight)return n;
+  }
+  return document.scrollingElement||document.documentElement;
+ }
+ addEventListener('touchstart',function(e){
+  if(busy||e.touches.length!==1)return;
+  var t=e.target;
+  if(t.closest&&t.closest('input,textarea,select'))return;
+  var sc=scroller(t);
+  var top=(sc===document.scrollingElement||sc===document.documentElement)?window.scrollY:sc.scrollTop;
+  if(top>0||window.scrollY>0){y0=null;return;}
+  y0=e.touches[0].clientY;dy=0;
+ },{passive:true});
+ addEventListener('touchmove',function(e){
+  if(y0===null)return;
+  dy=Math.max(0,e.touches[0].clientY-y0);
+  var p=Math.min(dy/T,1.4);
+  el.style.opacity=Math.min(1,dy/40);
+  el.style.transform='translateY('+(Math.min(dy,T*1.4)*0.7-50)+'px) rotate('+(p*300)+'deg)';
+  el.style.color=dy>=T?'#8E3F4C':'#24513A';
+ },{passive:true});
+ addEventListener('touchend',function(){
+  if(y0===null)return;
+  y0=null;
+  el.style.transition='transform .25s, opacity .25s';
+  if(dy>=T){
+   busy=true;
+   el.style.transform='translateY(16px)';
+   el.animate&&el.animate([{rotate:'0deg'},{rotate:'360deg'}],{duration:700,iterations:Infinity});
+   setTimeout(function(){location.reload();},350);
+  }else{
+   el.style.transform='translateY(-60px)';el.style.opacity=0;
+  }
+  setTimeout(function(){el.style.transition='none';},260);
+ });
+})();
 </script>
 </body>
 </html>
