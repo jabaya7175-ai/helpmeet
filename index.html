@@ -335,7 +335,7 @@ footer b{color:#fff}
         <div>
           <span class="eyebrow">Early access</span>
           <h2>Be first in line.</h2>
-          <p class="lead" style="font-size:19px">We're launching city by city, starting where the most people sign up. Single or a friend of someone single, join and help bring HelpMeet to your city.</p>
+          <p class="lead" style="font-size:19px">We're starting with churches across Dallas–Fort Worth. Single, or a friend of someone single? Join and help bring HelpMeet to your church.</p>
         </div>
         <div>
           <form id="waitlist" novalidate>
@@ -344,10 +344,10 @@ footer b{color:#fff}
               <div class="field"><label for="email">Email</label><input id="email" name="email" type="email" autocomplete="email" required maxlength="200"></div>
             </div>
             <div class="two">
-              <div class="field"><label for="city">City</label>
+              <div class="field"><label for="city">Area</label>
                 <select id="city" name="city" required>
                   <option value="">Choose…</option>
-                  <option>Dallas–Fort Worth</option><option>Houston</option><option>Austin</option><option>San Antonio</option><option>Nashville</option><option>Atlanta</option><option>Charlotte</option><option>Other</option>
+                  <option>Dallas</option><option>Fort Worth</option><option>Plano / Frisco / McKinney</option><option>Richardson / Garland</option><option>Irving / Las Colinas</option><option>Arlington / Grand Prairie</option><option>Mid-Cities (Grapevine, Southlake, Keller)</option><option>Denton / Lewisville</option><option>Other DFW</option><option>Outside DFW</option>
                 </select>
               </div>
               <div class="field"><label for="tradition">Church tradition <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
@@ -357,6 +357,7 @@ footer b{color:#fff}
                 </select>
               </div>
             </div>
+            <div class="field"><label for="church">Your church <span style="font-weight:400;color:var(--muted)">(optional, kept private)</span></label><input id="church" name="church" maxlength="80" autocomplete="off" placeholder="e.g. the church you call home"></div>
             <div class="field">
               <span class="legend" id="role-label">I'm joining as</span>
               <div class="choice" role="radiogroup" aria-labelledby="role-label">
@@ -393,7 +394,7 @@ footer b{color:#fff}
         <details><summary>Do I need friends to use it?</summary><p>No. Friends are optional. Without them it works like a thoughtful dating app with 7 matches a day. With them, your dates get a little help.</p></details>
         <details><summary>What do my friends see?</summary><p>A limited version of your match's profile and where and when you're meeting, so their ideas fit nearby. They never see your chats, and never learn how the date went unless you tell them.</p></details>
         <details><summary>Do we have to use the questions?</summary><p>Not at all. Use one, skip them all, or never open them. They're there in case the conversation needs a nudge.</p></details>
-        <details><summary>When is it launching?</summary><p>We're starting in Dallas–Fort Worth and expanding to the cities where the most people join the waitlist.</p></details>
+        <details><summary>When is it launching?</summary><p>We're starting with a small group of churches in Dallas–Fort Worth. Join the waitlist and we'll let you know as soon as your church is in.</p></details>
       </div>
     </div>
   </section>
@@ -430,12 +431,12 @@ form.addEventListener('submit', async (e) => {
   if (form.website.value) { showDone(name || 'friend', { ref_code: 'thanks', referrals: 0 }); return; }
   if (!name) return fail('Please add your first name.', form.name);
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return fail('Please enter a valid email.', form.email);
-  if (!city) return fail('Please choose your city.', form.city);
+  if (!city) return fail('Please choose your area.', form.city);
   btn.disabled = true; btn.textContent = 'Joining…';
   const payload = {
     p_first_name: name, p_email: email, p_city: city,
     p_role: form.role.value, p_tradition: form.tradition.value,
-    p_ref: incomingRef, p_source: source
+    p_ref: incomingRef, p_source: source, p_church: form.church.value.trim()
   };
   try {
     let result;

@@ -11,7 +11,8 @@ create table if not exists public.waitlist (
   tradition    text check (char_length(tradition) <= 60),
   ref_code     text not null unique default substr(md5(gen_random_uuid()::text), 1, 8),
   referred_by  text references public.waitlist (ref_code),
-  source       text check (char_length(source) <= 80)
+  source       text check (char_length(source) <= 80),
+  church       text check (char_length(church) <= 80)  -- optional, private
 );
 
 alter table public.waitlist enable row level security;
@@ -19,7 +20,8 @@ alter table public.waitlist enable row level security;
 
 create or replace function public.join_waitlist(
   p_first_name text, p_email text, p_city text, p_role text,
-  p_tradition text default null, p_ref text default null, p_source text default null
+  p_tradition text default null, p_ref text default null, p_source text default null,
+  p_church text default null
 ) returns json
 language plpgsql
 security definer
@@ -32,8 +34,9 @@ declare
 begin
   select ref_code into v_ref from waitlist where ref_code = nullif(trim(p_ref), '');
 
-  insert into waitlist (first_name, email, city, role, tradition, referred_by, source)
-  values (trim(p_first_name), v_email, p_city, p_role, nullif(trim(p_tradition), ''), v_ref, nullif(left(p_source, 80), ''))
+  insert into waitlist (first_name, email, city, role, tradition, referred_by, source, church)
+  values (trim(p_first_name), v_email, p_city, p_role, nullif(trim(p_tradition), ''), v_ref,
+          nullif(left(p_source, 80), ''), nullif(left(trim(p_church), 80), ''))
   on conflict (email) do nothing;
 
   select ref_code into v_code from waitlist where email = v_email;
@@ -45,9 +48,12 @@ begin
 end;
 $$;
 
-revoke all on function public.join_waitlist(text, text, text, text, text, text, text) from public;
-grant execute on function public.join_waitlist(text, text, text, text, text, text, text) to anon;
+revoke all on function public.join_waitlist(text, text, text, text, text, text, text, text) from public;
+grant execute on function public.join_waitlist(text, text, text, text, text, text, text, text) to anon;
 
+-- Sign-ups by church:
+-- select coalesce(church, '(not given)') as church, count(*) from waitlist group by 1 order by 2 desc;
+--
 -- Traction report (run as admin in the SQL editor):
 -- select city, role, count(*) as signups,
 --        round(100.0 * count(*) filter (where referred_by is not null) / count(*), 1) as pct_referred
