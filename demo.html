@@ -148,13 +148,45 @@ function reset(){
  Object.assign(st,{view:'discover',idx:0,seen:new Set([0]),liked:new Set(),matched:false,planned:false,
   place:0,time:1,friends:new Set([0,1]),friendDone:false,fType:0,fP1:'',fP2:'',fA1:'',fA2:'',
   youIn:false,herIn:false,codeErr:false,unlocked:false,pIdx:0,keep:null,herKeep:false,pick:0,
-  church:2,showChurch:false,ended:null,dateDay:false,loginErr:false,again:null,herAgain:false,dateNum:1,qa:{},qIdx:0,quizDone:false,qView:'',justUnlocked:false,sarahPts:75,partnerIn:false,fA1P:false,fA2P:false});
+  church:2,showChurch:false,ended:null,dateDay:false,loginErr:false,again:null,herAgain:false,dateNum:1,genre:0,qa:{},qIdx:0,quizDone:false,qView:'',justUnlocked:false,sarahPts:75,partnerIn:false,fA1P:false,fA2P:false});
  go(st.loggedIn?'discover':'login');
 }
-const PLACES=[{n:'Coffee on Main',a:'Keller Town Center'},{n:'Bakery café',a:'Old Town Keller'},{n:'Botanic garden walk',a:'Fort Worth'}];
-const TIMES=['Fri · 6:30 pm','Sat · 10:00 am','Sun · 1:00 pm'];
+const GENRES=[
+ {k:'coffee',label:'Coffee',icon:'☕',title:'Coffee',after:'coffee',places:[
+  {n:'Main Street Roasters',a:'Keller Town Center',you:5,her:4,perk:'Free pastry to split'},
+  {n:'Old Town Coffee Co.',a:'Old Town Keller',you:7,her:3},
+  {n:'Bluebonnet Café',a:'Southlake Town Square',you:6,her:9,perk:'10% off for HelpMeet dates'}]},
+ {k:'brunch',label:'Brunch',icon:'🥞',title:'Brunch',after:'brunch',places:[
+  {n:'Sunday Table',a:'Keller Town Center',you:5,her:4,perk:'Free coffee refills'},
+  {n:'Magnolia Kitchen',a:'Southlake',you:6,her:10},
+  {n:'The Front Porch',a:'Old Town Keller',you:8,her:3}]},
+ {k:'texmex',label:'Tex-Mex',icon:'🌮',title:'Tex-Mex',after:'lunch',places:[
+  {n:'Casa Azul',a:'Keller',you:6,her:5,perk:'Free queso'},
+  {n:'Rancho Verde',a:'North Richland Hills',you:9,her:11},
+  {n:'La Cocina on Main',a:'Old Town Keller',you:8,her:3}]},
+ {k:'italian',label:'Italian',icon:'🍝',title:'Dinner',after:'dinner',places:[
+  {n:'Trattoria Rosa',a:'Southlake Town Square',you:6,her:9,perk:'Free tiramisu to share'},
+  {n:'Olive & Vine',a:'Keller Town Center',you:5,her:4},
+  {n:"Nonna's Table",a:'Colleyville',you:10,her:12}]},
+ {k:'bbq',label:'BBQ',icon:'🍖',title:'BBQ',after:'lunch',places:[
+  {n:'Post Oak Pit',a:'Keller',you:7,her:5,perk:'Free banana pudding'},
+  {n:'Smokestack BBQ',a:'Haltom City',you:12,her:14},
+  {n:'Hickory House',a:'Roanoke',you:11,her:8}]},
+ {k:'dessert',label:'Dessert',icon:'🍰',title:'Dessert',after:'dessert',places:[
+  {n:'Crumb & Co.',a:'Old Town Keller',you:8,her:3,perk:'Two cookies for one'},
+  {n:'Scoops on Main',a:'Keller Town Center',you:5,her:4},
+  {n:'Frosted Bakery',a:'Southlake',you:6,her:9}]}
+];
+GENRES.forEach(g=>g.places.sort((x,y)=>(Math.max(x.you,x.her)-Math.max(y.you,y.her))||((x.you+x.her)-(y.you+y.her))));
+const genre=()=>GENRES[st.genre]||GENRES[0];
+const place=()=>genre().places[st.place]||genre().places[0];
+const PLACES=null;
+const SLOTS={coffee:['Fri · 7:30 am','Sat · 10:00 am','Sun · 1:00 pm'],brunch:['Sat · 10:30 am','Sun · 11:30 am','Sun · 1:00 pm'],texmex:['Fri · 12:00 pm','Sat · 12:30 pm','Sun · 1:00 pm'],italian:['Fri · 7:00 pm','Sat · 6:30 pm','Sun · 5:30 pm'],bbq:['Fri · 12:00 pm','Sat · 12:30 pm','Sun · 1:30 pm'],dessert:['Fri · 8:00 pm','Sat · 7:30 pm','Sun · 3:00 pm']};
+const AFTERT={coffee:'11:15',brunch:'12:15',texmex:'1:45',italian:'8:30',bbq:'1:45',dessert:'9:00'};
+const TIMES={map:(f)=>SLOTS[genre().k].map(f)};
+const slot=()=>SLOTS[genre().k][st.time]||SLOTS[genre().k][1];
 const FRIENDS=['Sarah K.','Marcus T.','Jess R.'];
-const timeLabel=()=>TIMES[st.time].replace('Fri','Friday').replace('Sat','Saturday').replace('Sun','Sunday');
+const timeLabel=()=>slot().replace('Fri','Friday').replace('Sat','Saturday').replace('Sun','Sunday');
 
 /* ---------- Screens ---------- */
 function photo(p,h){
@@ -225,9 +257,13 @@ function vPlan(){
 <button type="button" data-act="back" style="${st.dateNum>1?'visibility:hidden;':''}align-self:flex-start;border:none;background:none;color:#fff;font:400 17px ${F};padding:4px 0">Back</button>
 <h1 style="${S.h1}">${st.dateNum>1?'Plan date #'+st.dateNum:'Plan a date'} with Emily</h1></header>
 <div class="scroll" style="flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:12px">
-<span style="font-size:16px;font-weight:700">Where</span>
-${PLACES.map((p,i)=>opt(i===st.place,'place',i,p.n,p.a)).join('')}
-<span style="font-size:16px;font-weight:700;margin-top:4px">When</span>
+<span style="font-size:16px;font-weight:700">What kind of place?</span>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">${GENRES.map((g,i)=>`<button type="button" data-act="genre" data-i="${i}" style="height:52px;border-radius:16px;font:600 15px ${F};display:flex;align-items:center;justify-content:center;gap:6px;${i===st.genre?'border:2px solid #24513A;background:#E6EFE8;color:#193A29':'border:2px solid transparent;background:#FFFFFF;color:#231B1B;box-shadow:0 6px 16px rgba(35,27,27,0.06)'}"><span aria-hidden="true">${g.icon}</span>${g.label}</button>`).join('')}</div>
+<div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:4px"><span style="font-size:16px;font-weight:700">HelpMeet partners near you two</span><span style="font-size:13px;color:#66595A">Keller area</span></div>
+<span style="font-size:14px;color:#66595A;margin-top:-6px">Sorted so neither of you drives much farther: times from your area and Emily's.</span>
+${genre().places.map((p,i)=>opt(i===st.place,'place',i,esc(p.n),`${esc(p.a)} · ${p.you} min for you · ${p.her} for Emily${p.perk?`<br><span style="color:#8E3F4C;font-weight:600">Partner perk: ${esc(p.perk)}</span>`:''}`)).join('')}
+<div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:4px"><span style="font-size:16px;font-weight:700">Open tables for 2 at ${esc(place().n)}</span></div>
+<span style="font-size:13px;color:#66595A;margin-top:-6px">Sample times for the demo. The real app would pull live availability.</span>
 <div style="display:flex;gap:8px">${TIMES.map(chip).join('')}</div>
 <span style="font-size:16px;font-weight:700;margin-top:4px">Invite friends to help (up to 3)</span>
 <span style="font-size:14px;color:#66595A;margin-top:-6px">They see Emily's profile and can write prompts and right-after ideas. Optional.</span>
@@ -241,8 +277,8 @@ function vDates(){
 <div style="padding:22px;border-radius:28px;background:#E6EFE8;display:flex;flex-direction:column;gap:8px"><span style="font-size:20px;font-weight:600;color:#193A29">No dates yet</span><span style="font-size:16px;color:#4B3F3F">Match with someone from Today's 7, then plan a time and place.</span></div>${nav('dates')}</div>`;
  if(!st.planned) return `<div style="${S.root('24px 20px 108px',16)}"><header style="${S.head}"><h1 style="${S.h1}">Dates</h1></header>
 <div style="padding:22px;border-radius:28px;${S.card}display:flex;flex-direction:column;gap:12px"><span style="font-size:20px;font-weight:600">Emily is waiting on a plan</span><button type="button" data-act="toPlan" style="height:52px;${S.primary}">Plan a date</button></div>${nav('dates')}</div>`;
- const pl=PLACES[st.place];
- const head=`<header style="${S.head}display:flex;flex-direction:column;gap:4px"><span style="font-size:15px;color:#E6EFE8">${timeLabel()}</span><h1 style="${S.h1}">${st.dateNum>1?'Date #'+st.dateNum:'Coffee'} with Emily</h1><span style="font-size:16px;color:#E6EFE8">${pl.n}, ${pl.a}</span></header>`;
+ const pl=place();
+ const head=`<header style="${S.head}display:flex;flex-direction:column;gap:4px"><span style="font-size:15px;color:#E6EFE8">${timeLabel()}</span><h1 style="${S.h1}">${st.dateNum>1?'Date #'+st.dateNum:genre().title} with Emily</h1><span style="font-size:16px;color:#E6EFE8">${pl.n}, ${pl.a}</span></header>`;
  if(st.view==='dates-before'){
   const nf=st.friends.size;
   return `<div style="${S.root('24px 20px 108px',16)}">${head}
@@ -286,7 +322,7 @@ function prompts(){
 }
 function vPrompts(){
  const L=prompts();
- if(!L.length) return `<div style="${S.root('24px 20px 32px',18)}"><header style="${S.head}"><span style="font-size:17px;font-weight:600">Coffee with Emily</span></header>
+ if(!L.length) return `<div style="${S.root('24px 20px 32px',18)}"><header style="${S.head}"><span style="font-size:17px;font-weight:600">${genre().title} with Emily</span></header>
 <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:12px;padding:28px 24px;border-radius:34px;background:#E6EFE8;text-align:center"><span style="font-size:26px;font-weight:600">Just enjoy the date.</span><span style="font-size:16px;color:#4B3F3F">No prompts this time.</span></div>
 <button type="button" data-act="endDate" style="height:56px;${S.primary}">End date</button></div>`;
  const i=st.pIdx%L.length,c=L[i],n=L[(i+1)%L.length];
@@ -326,7 +362,7 @@ function ideas(){
  return L;
 }
 function vAfter(){
- const head=`<header style="${S.head}padding-top:18px;padding-bottom:14px"><span style="font-size:17px;font-weight:600">Coffee with Emily · ${TIMES[st.time].split('· ')[1]==='10:00 am'?'11:15':'later'}</span></header>`;
+ const head=`<header style="${S.head}padding-top:18px;padding-bottom:14px"><span style="font-size:17px;font-weight:600">${genre().title} with Emily · ${AFTERT[genre().k]}</span></header>`;
  const yn=(sel)=>`<div style="display:flex;gap:10px">
 <button type="button" data-act="keepNo" style="flex:1;height:44px;font-size:17px;${S.soft}${sel===false?'background:#231B1B;color:#fff;':''}">Not today</button>
 <button type="button" data-act="keepYes" style="flex:1;height:44px;border-radius:999px;border:none;font:600 17px ${F};${sel===true?'background:#231B1B;color:#FFFFFF':'background:#F1E9E2;color:#231B1B;box-shadow:inset 0 -3px 0 rgba(35,27,27,0.07), 0 3px 8px rgba(35,27,27,0.06)'}">Yes</button></div>`;
@@ -353,7 +389,7 @@ function vAfter(){
 function vSecond(){
  const where=st.ended;
  return `<div style="${S.root('24px 20px 32px',16)}">
-<header style="${S.head}display:flex;flex-direction:column;gap:4px"><span style="font-size:15px;color:#E6EFE8">Right after coffee</span><h1 style="${S.h1}">${where?esc(where):'Your own thing'}</h1><span style="font-size:16px;color:#E6EFE8">With Emily</span></header>
+<header style="${S.head}display:flex;flex-direction:column;gap:4px"><span style="font-size:15px;color:#E6EFE8">Right after ${genre().after}</span><h1 style="${S.h1}">${where?esc(where):'Your own thing'}</h1><span style="font-size:16px;color:#E6EFE8">With Emily</span></header>
 <div class="rise" style="padding:26px 22px;border-radius:28px;background:#E6EFE8;display:flex;flex-direction:column;gap:10px;align-items:center;text-align:center">
 <span class="pop" style="font-size:52px">${where?'📍':'🚶'}</span>
 <span style="font-size:24px;font-weight:600;color:#193A29">${where?'Enjoy it!':'Have fun!'}</span>
@@ -393,7 +429,7 @@ function vDone(){
 
 function vMatches(){
  let status='New match: plan a date';
- if(st.planned) status='Date '+TIMES[st.time];
+ if(st.planned) status='Date '+slot();
  const rows=[];
  if(!st.matched) status='Likes you · tap to match';
  rows.push({img:IMG.emily,name:'Emily, 25',meta:'Presbyterian · Keller',status,friends:true,act:'openEmily'});
@@ -435,12 +471,12 @@ ${fr('Sarah K.','Active',1)}${fr('Marcus T.','Invite sent',0)}
 
 function vFriend(){
  const tb=(t,i)=>`<button type="button" data-act="fType" data-i="${i}" style="flex:1;height:44px;border-radius:14px;font:600 15px ${F};${i===st.fType?'border:2px solid #24513A;background:#E6EFE8;color:#193A29':'border:none;background:#F1E9E2;color:#231B1B;box-shadow:inset 0 -3px 0 rgba(35,27,27,0.07), 0 3px 8px rgba(35,27,27,0.06)'}">${t}</button>`;
- const pl=PLACES[st.place];
+ const pl=place();
  return `<div style="${S.root('20px 20px 24px',14)}">
 <header style="margin:-20px -20px 0;padding:20px 20px 18px;background:#24513A;color:#FFFFFF;display:flex;flex-direction:column;gap:4px;border-radius:0 0 32px 32px">
 <span style="align-self:flex-start;font-size:13px;font-weight:700;padding:3px 8px;border-radius:11px;background:#F6E8E8;color:#8E3F4C;text-transform:uppercase;letter-spacing:0.06em">Friend mode · you're Sarah</span>
 <h1 style="margin:0;font-size:28px;font-weight:700;letter-spacing:-0.01em">Help Joshua's date go well</h1>
-<span style="font-size:15px;color:#E6EFE8">${TIMES[st.time].split(' ·')[0]} · closes when the date starts</span>
+<span style="font-size:15px;color:#E6EFE8">${slot().split(' ·')[0]} · closes when the date starts</span>
 <div style="display:flex;flex-direction:column;gap:6px;margin-top:6px"><div style="display:flex;justify-content:space-between;font-size:14px;color:#E6EFE8"><span>Your points: <b style="color:#fff">${st.sarahPts}</b></span><span>${st.sarahPts>=GOAL?'15% off unlocked':(GOAL-st.sarahPts)+' to 15% off'}</span></div>
 <div style="height:8px;border-radius:999px;background:rgba(255,255,255,0.2);overflow:hidden"><div style="height:100%;border-radius:999px;background:#F4B6BF;width:${Math.min(100,st.sarahPts/GOAL*100)}%"></div></div></div></header>
 <div class="scroll" style="flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:14px">
@@ -514,7 +550,7 @@ ${st.quizDone?'':`<div style="padding:10px 14px;border-radius:17px;background:#F
 const HINTS={
  discover:()=>PEOPLE[st.idx]&&PEOPLE[st.idx].bonus?'A bonus swipe from your questionnaire.':st.liked.has(EMILY)?'':st.idx===EMILY?'Read Emily\'s card, then tap <b>Like</b>.':'Swipe through Today\'s 7 with <b>Pass</b>. Emily is the friends-suggested card.',
  match:()=>'It\'s mutual. Tap <b>Plan a date</b>.',
- plan:()=>'Pick a place, a time, and which friends can help.',
+ plan:()=>'Pick a kind of place, then a partner spot near you both.',
  'dates-before':()=>st.friendDone?'Now <b>skip ahead</b> to the date.':'Try the friend side: write a prompt as Sarah.',
  friend:()=>'You\'re Sarah now. Write a prompt, and add a partner spot to earn points.',
  'dates-check':()=>st.youIn&&st.herIn?'Ask Emily for the code on her phone (<b>4817</b> in the demo).':'Tap <b>I\'m here</b> to check in.',
@@ -552,6 +588,7 @@ document.getElementById('app').addEventListener('click',e=>{
   case 'toPlan': return go('plan');
   case 'back': return go('match');
   case 'place': st.place=i;return render();
+  case 'genre': st.genre=i;st.place=0;return render();
   case 'time': st.time=i;return render();
   case 'friend': st.friends.has(i)?st.friends.delete(i):st.friends.add(i);return render();
   case 'sendPlan': st.planned=true;toast('Sent. Emily said yes!');return go('dates-before');
