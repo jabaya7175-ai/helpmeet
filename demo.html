@@ -65,15 +65,16 @@ const ICONS={
 discover:'<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="11" height="15" rx="3" transform="rotate(-12 9 12.5)" fill="currentColor" fill-opacity=".18"/><rect x="9" y="4" width="11" height="15" rx="3" transform="rotate(8 14.5 11.5)" fill="currentColor" fill-opacity=".32"/><path d="M20.5 1.5l.7 1.6 1.6.7-1.6.7-.7 1.6-.7-1.6-1.6-.7 1.6-.7z" fill="#F4B6BF" stroke="none"/></svg>',
 matches:'<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 20s-6.5-4-6.5-9.2A3.6 3.6 0 0 1 10 8.6a3.6 3.6 0 0 1 6.5 2.2C16.5 16 10 20 10 20z" fill="currentColor" fill-opacity=".32"/><path d="M18 13.5s-3.6-2.3-3.6-5.1A2.1 2.1 0 0 1 18 7.2a2.1 2.1 0 0 1 3.6 1.2c0 2.8-3.6 5.1-3.6 5.1z" fill="#F4B6BF" stroke="#F4B6BF"/></svg>',
 dates:'<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10h12v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5z" fill="currentColor" fill-opacity=".32"/><path d="M16 11h1.5a2.5 2.5 0 0 1 0 5H16"/><path d="M8 2.8c-.9 1.1.9 2.1 0 3.4M12 2.8c-.9 1.1.9 2.1 0 3.4" stroke="#F4B6BF"/></svg>',
+quiz:'<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4.5" y="4" width="14" height="17" rx="3" fill="currentColor" fill-opacity=".25"/><path d="M9 3h5v3H9z" fill="currentColor" fill-opacity=".5"/><path d="M8 11.5l2 2 4-4"/><path d="M8 17h6"/><path d="M20.5 1.5l.7 1.6 1.6.7-1.6.7-.7 1.6-.7-1.6-1.6-.7 1.6-.7z" fill="#F4B6BF" stroke="none"/></svg>',
 profile:'<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="currentColor" fill-opacity=".25"/><circle cx="9" cy="10.5" r="1.1" fill="currentColor" stroke="none"/><circle cx="15" cy="10.5" r="1.1" fill="currentColor" stroke="none"/><path d="M8.5 14.3c1 1.4 2.2 2.1 3.5 2.1s2.5-.7 3.5-2.1"/><circle cx="6.8" cy="14" r="1.3" fill="#F4B6BF" stroke="none"/><circle cx="17.2" cy="14" r="1.3" fill="#F4B6BF" stroke="none"/></svg>'
 };
 function nav(active){
  const tab=(k,label)=>{
   const on=k===active;
-  const st='display:flex;align-items:center;justify-content:center;box-sizing:border-box;width:64px;height:64px;padding:0;border-radius:999px;border:none;text-decoration:none;'+(on?'background:#FAF6F2;color:#24513A;box-shadow:0 6px 14px rgba(0,0,0,0.18), inset 0 -3px 0 rgba(36,81,58,0.12);transform:translateY(-4px);':'background:transparent;color:#E6EFE8;');
+  const st='display:flex;align-items:center;justify-content:center;box-sizing:border-box;width:60px;height:60px;padding:0;border-radius:999px;border:none;text-decoration:none;position:relative;'+(on?'background:#FAF6F2;color:#24513A;box-shadow:0 6px 14px rgba(0,0,0,0.18), inset 0 -3px 0 rgba(36,81,58,0.12);transform:translateY(-4px);':'background:transparent;color:#E6EFE8;');
   return `<button type="button" data-tab="${k}" aria-label="${label}" ${on?'aria-current="page"':''} style="${st}">${ICONS[k]}</button>`;
  };
- return `<nav aria-label="Main" style="position:absolute;left:0;right:0;bottom:0;height:92px;padding-bottom:6px;box-sizing:border-box;background:#24513A;display:flex;justify-content:space-around;align-items:center;border-radius:32px 32px 0 0;box-shadow:0 -6px 20px rgba(25,58,41,0.18)">${tab('discover','Discover')}${tab('matches','Matches')}${tab('dates','Dates')}${tab('profile','Profile')}</nav>`;
+ return `<nav aria-label="Main" style="position:absolute;left:0;right:0;bottom:0;height:92px;padding-bottom:6px;box-sizing:border-box;background:#24513A;display:flex;justify-content:space-around;align-items:center;border-radius:32px 32px 0 0;box-shadow:0 -6px 20px rgba(25,58,41,0.18)">${tab('discover','Discover')}${tab('matches','Matches')}${tab('dates','Dates')}${tab('quiz','Questions')}${tab('profile','Profile')}</nav>`;
 }
 
 /* ---------- Today's 7 ---------- */
@@ -115,6 +116,31 @@ const PEOPLE=[
  q:['A Sunday afternoon well spent','Grill out, ballgame on, everyone invited.']}
 ];
 const EMILY=2;
+PEOPLE.forEach(p=>p.tags=[]);
+const TAGS={Hannah:['lake','cook','volunteer','hike'],Miriam:['market','cook','music','hike'],Emily:['coffee','books','games','bake'],Ruth:['hike','roadtrip','music','games'],Abigail:['sports','music','coffee','volunteer'],Grace:['museums','coffee','books','dance'],Leah:['sports','music','games','lake']};
+PEOPLE.forEach(p=>p.tags=TAGS[p.name]||[]);
+PEOPLE.push(
+{name:'Lydia',age:27,trad:'Baptist',city:'Arlington',tint:'#E7DDD3',bonus:true,tags:['coffee','books','roadtrip','music'],
+ bio:"Physical therapist, worship-night regular, and the person who always knows a good coffee spot. I'm happiest outside or around a big table with friends and too much food.",
+ school:'UT Arlington',height:"5'5\"",work:'Physical therapist',drink:'Rarely',smoke:'Never',looking:'Marriage',
+ likes:['Coffee shops','Road trips','Worship nights'],hobbies:['Running','Journaling','Gardening'],movie:'Pride & Prejudice',
+ q:['A Sunday afternoon well spent','Nap, porch, and a long phone call with my mom.']},
+{name:'Esther',age:26,trad:'Bible church',city:'Frisco',tint:'#E9DFD5',bonus:true,tags:['games','cook','hike','museums'],
+ bio:"Software tester who loves a good puzzle, a better board game and a long hike with a short climb at the end. I lead the welcome team at church and I will remember your name.",
+ school:'Texas Tech University',height:"5'7\"",work:'Software tester',drink:'Socially',smoke:'Never',looking:'Marriage',
+ likes:['Board games','Hiking','Cooking'],hobbies:['Puzzles','Baking','Volleyball'],movie:'Hidden Figures',
+ q:['My friends would say I am','The one who brings snacks for everyone.']}
+);
+const QUIZ=[
+ ['coffee','Coffee shops'],['hike','Hiking and trails'],['music','Live music'],['games','Board and card games'],
+ ['sports','Going to a ballgame'],['museums','Museums and galleries'],['cook','Cooking together'],['roadtrip','Road trips'],
+ ['books','Bookstores'],['dance','Dancing'],['volunteer','Volunteering together'],['lake','A day at the lake'],
+ ['market','Farmers markets'],['bake','Baking']
+];
+const QOPTS=['Love it','Like it','Meh','Not for me'];
+const daily=()=>st.quizDone?9:7;
+const liked=()=>QUIZ.filter(q=>st.qa[q[0]]===0||st.qa[q[0]]===1).map(q=>q[0]);
+function common(p){const L=liked();return QUIZ.filter(q=>p.tags.includes(q[0])&&L.includes(q[0])).map(q=>q[1]);}
 
 const st={};try{st.loggedIn=sessionStorage.getItem('hmIn')==='1'}catch(e){}
 if(location.hash==='#k=376855e6cbdd37e87eb523d49cfcbb506ad1ae1992ff39f1ee86f9bde0a53692'){st.loggedIn=true;try{sessionStorage.setItem('hmIn','1')}catch(e){}history.replaceState(null,'',location.pathname+location.search);}
@@ -122,7 +148,7 @@ function reset(){
  Object.assign(st,{view:'discover',idx:0,seen:new Set([0]),liked:new Set(),matched:false,planned:false,
   place:0,time:1,friends:new Set([0,1]),friendDone:false,fType:0,fP1:'',fP2:'',fA1:'',fA2:'',
   youIn:false,herIn:false,codeErr:false,unlocked:false,pIdx:0,keep:null,herKeep:false,pick:0,
-  church:2,showChurch:false,ended:null,dateDay:false,loginErr:false,again:null,herAgain:false,dateNum:1});
+  church:2,showChurch:false,ended:null,dateDay:false,loginErr:false,again:null,herAgain:false,dateNum:1,qa:{},qIdx:0,quizDone:false,qView:'',justUnlocked:false,sarahPts:75,partnerIn:false,fA1P:false,fA2P:false});
  go(st.loggedIn?'discover':'login');
 }
 const PLACES=[{n:'Coffee on Main',a:'Keller Town Center'},{n:'Bakery café',a:'Old Town Keller'},{n:'Botanic garden walk',a:'Fort Worth'}];
@@ -137,16 +163,17 @@ function photo(p,h){
 }
 function vDiscover(){
  const p=PEOPLE[st.idx];
- const bars=PEOPLE.map((_,i)=>`<span style="flex:1;height:4px;border-radius:999px;background:${i<=st.idx?'#24513A':'#E8DFD8'}"></span>`).join('');
+ const bars=PEOPLE.slice(0,daily()).map((x,i)=>`<span style="flex:1;height:4px;border-radius:999px;background:${i<=st.idx?(x.bonus?'#8E3F4C':'#24513A'):(x.bonus?'#F4B6BF':'#E8DFD8')}"></span>`).join('');
  const row=(k,v,last)=>`<div style="display:flex;justify-content:space-between;gap:12px;font-size:16px;padding:8px 0;${last?'':'border-bottom:1px solid #F1E9E2'}"><span style="color:#66595A">${k}</span><span style="text-align:right">${esc(v)}</span></div>`;
  const chips=a=>`<div style="display:flex;flex-wrap:wrap;gap:8px">${a.map(x=>`<span style="${S.chip}">${esc(x)}</span>`).join('')}</div>`;
  const box=(t,b)=>`<div style="padding:12px 14px;background:#FAF6F2;border-radius:17px;display:flex;flex-direction:column;gap:4px"><span style="font-size:14px;font-weight:600;color:#66595A">${t}</span><span style="font-size:17px">${esc(b)}</span></div>`;
- const pill=st.seen.has(EMILY)&&st.idx!==EMILY?'':`<button type="button" data-act="jumpEmily" style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:17px;border:none;background:#F6E8E8;color:#8E3F4C;font:600 16px ${F};text-align:left"><span>+1 Friends suggested card today</span><span aria-hidden="true">›</span></button>`;
+ const quizPill=st.quizDone?'':`<button type="button" data-tab="quiz" style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:17px;border:none;background:#E6EFE8;color:#193A29;font:600 16px ${F};text-align:left"><span>Answer 14 quick questions: +2 swipes</span><span aria-hidden="true">›</span></button>`;
+ const pill=st.seen.has(EMILY)&&st.idx!==EMILY?quizPill:`<button type="button" data-act="jumpEmily" style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:17px;border:none;background:#F6E8E8;color:#8E3F4C;font:600 16px ${F};text-align:left"><span>+1 Friends suggested card today</span><span aria-hidden="true">›</span></button>`;
  return `<div style="${S.root('24px 20px 108px',14)}">
 <header style="${S.head}display:flex;justify-content:space-between;align-items:flex-end">
 <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;color:#E6EFE8">Monday</span><h1 style="${S.h1}">Today's 7</h1></div>
-<span style="font-size:15px;color:#E6EFE8">${st.idx+1} of 7 · loops</span></header>
-<div style="display:flex;gap:6px" aria-label="Card ${st.idx+1} of 7">${bars}</div>
+<span style="font-size:15px;color:#E6EFE8">${st.idx+1} of ${daily()} · loops</span></header>
+<div style="display:flex;gap:6px" aria-label="Card ${st.idx+1} of ${daily()}">${bars}</div>
 ${pill}
 <article class="rise" style="flex:1;min-height:0;display:flex;flex-direction:column;${S.card}border-radius:28px;overflow:hidden">
 <div class="scroll" style="flex:1;min-height:0;overflow-y:auto">
@@ -154,8 +181,10 @@ ${photo(p,210)}
 <div style="padding:16px 18px 20px;display:flex;flex-direction:column;gap:14px">
 <div style="display:flex;flex-direction:column;gap:4px">
 ${p.friends?`<span style="align-self:flex-start;font-size:13px;font-weight:700;padding:3px 8px;border-radius:14px;background:#F6E8E8;color:#8E3F4C">Friends suggested</span>`:''}
+${p.bonus?`<span style="align-self:flex-start;font-size:13px;font-weight:700;padding:3px 8px;border-radius:14px;background:#F4B6BF;color:#5A1E28">Bonus swipe</span>`:''}
 <h2 style="margin:0;font-size:28px;font-weight:700">${p.name}, ${p.age}</h2>
 <p style="margin:0;font-size:16px;color:#66595A">${p.trad} · ${p.city}</p></div>
+${common(p).length?`<div style="padding:12px 14px;border-radius:17px;background:#F6E8E8;display:flex;flex-direction:column;gap:4px"><span style="font-size:14px;font-weight:700;color:#8E3F4C">You both like</span><span style="font-size:16px;color:#5A1E28">${common(p).join(' · ')}</span></div>`:''}
 <section style="display:flex;flex-direction:column;gap:6px"><span style="${S.label}">About ${p.name}</span><p style="margin:0;font-size:17px;line-height:1.5">${esc(p.bio)}</p></section>
 <section style="display:flex;flex-direction:column">
 ${row('Church',p.trad)}${row('School',p.school)}${row('Height',p.height)}${row('Work',p.work)}${row('Drinking',p.drink)}${row('Smoking',p.smoke)}${row('Looking for',p.looking,1)}
@@ -229,15 +258,16 @@ ${nf&&st.friends.has(0)?`<section style="padding:18px;border-radius:24px;backgro
 ${stat('You',st.youIn,`<button type="button" data-act="checkIn" style="height:40px;padding:0 18px;${S.primary}font-size:16px">I'm here</button>`)}
 ${stat('Emily',st.herIn,`<span style="color:#66595A;font-size:16px">${st.youIn?'Parking…':'On her way'}</span>`)}
 </section>
-${both?`<section class="rise" style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:20px 16px;background:#E6EFE8;border-radius:28px">
-<span style="font-size:16px;font-weight:600;color:#193A29">You're both here. Your code:</span>
-<span style="font-size:44px;font-weight:700;letter-spacing:0.2em">4817</span>
-<span style="font-size:15px;color:#4B3F3F;text-align:center">The same code is on Emily's phone.</span></section>
-<div style="display:flex;flex-direction:column;gap:8px"><label for="code" style="font-size:16px;font-weight:600">Enter the code to unlock today's prompts</label>
+${both?`<section class="rise" style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 16px;background:#E6EFE8;border-radius:24px">
+<span style="font-size:16px;font-weight:600;color:#193A29">You're both here. Trade codes.</span>
+<span style="font-size:15px;color:#4B3F3F;text-align:center">Read Emily your code; you type in hers.</span>
+<span style="font-size:34px;font-weight:700;letter-spacing:0.2em;line-height:1.1">2930</span></section>
+<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;border-radius:18px;background:#F6E8E8;color:#5A1E28;font-size:15px"><span>Demo only: Emily's phone shows</span><b style="font-size:20px;letter-spacing:.15em">4817</b></div>
+<div style="display:flex;flex-direction:column;gap:8px"><label for="code" style="font-size:16px;font-weight:600">Enter the code on Emily's phone</label>
 <input id="code" inputmode="numeric" maxlength="4" placeholder="4-digit code" style="height:52px;border:1.5px solid ${st.codeErr?'#8E3F4C':'#E8DFD8'};background:#FFFFFF;border-radius:17px;padding:0 16px;font:500 20px ${F};letter-spacing:0.15em">
-${st.codeErr?'<span style="font-size:14px;color:#8E3F4C">That code doesn\'t match. Try 4817.</span>':''}</div>
+${st.codeErr?'<span style="font-size:14px;color:#8E3F4C">That isn\'t Emily\'s code. Ask her to read it again.</span>':''}</div>
 <button type="button" data-act="unlock" style="height:56px;${S.primary}">Unlock</button>
-<p style="margin:0;font-size:14px;color:#66595A;text-align:center">If friends didn't write anything, there's nothing to unlock. Just enjoy the date.</p>`
+`
 :`<div style="padding:22px;border-radius:28px;background:#E6EFE8;color:#193A29;font-size:16px;text-align:center">Check in when you get there. A code appears once you're both here.</div>`}
 ${nav('dates')}</div>`;
 }
@@ -276,14 +306,22 @@ ${L.length>1?`<article style="display:flex;flex-direction:column;gap:8px;padding
 <div style="display:flex;justify-content:space-between"><button type="button" data-act="endDate" style="${S.link}font-size:16px">End date</button><button type="button" data-act="report" style="border:none;background:none;color:#66595A;font:500 15px ${F};padding:8px 0">Report this prompt</button></div></div>`;
 }
 
+const PARTNERS=[
+ {n:'SWEET TREAT!',note:'2 blocks · 3 min walk',kind:'Ice cream'},
+ {n:'Used bookstore',note:'1 min walk',kind:'Books and coffee'},
+ {n:'Corner Bakehouse',note:'0.2 mi · 4 min walk',kind:'Pie and pastries'}
+];
+const isPartner=n=>PARTNERS.some(p=>p.n.toLowerCase()===String(n).trim().toLowerCase());
+const PTS=25,GOAL=100;
 function ideas(){
  const L=[];
- if(st.fA1.trim()) L.push([st.fA1.trim(),'From your friends · nearby']);
- if(st.fA2.trim()) L.push([st.fA2.trim(),'From your friends · nearby']);
+ const add=(n,from)=>{const p=PARTNERS.find(x=>x.n.toLowerCase()===n.toLowerCase());L.push([n,(p?p.note:'From your friends · nearby'),from,!!p]);};
+ if(st.fA1.trim()) add(st.fA1.trim(),'Sarah');
+ if(st.fA2.trim()) add(st.fA2.trim(),'Sarah');
  if(st.friends.size){
-  L.push(['Used bookstore','1 min walk · pick a book for each other']);
-  L.push(['Art gallery','0.3 mi · 6 min walk']);
-  L.push(['SWEET TREAT!','2 blocks · 3 min walk']);
+  if(!L.some(x=>x[0]==='Used bookstore')) L.push(['Used bookstore','1 min walk · pick a book for each other','Marcus',true]);
+  L.push(['Art gallery','0.3 mi · 6 min walk','Jess',false]);
+  if(!L.some(x=>x[0]==='SWEET TREAT!')) L.push(['SWEET TREAT!','2 blocks · 3 min walk','Marcus',true]);
  }
  return L;
 }
@@ -306,7 +344,7 @@ function vAfter(){
  return `<div style="${S.root('24px 20px 32px',16)}">${head}${ask}
 <div class="rise" style="display:flex;flex-direction:column;gap:4px"><h1 style="margin:0;font-size:30px;font-weight:600;letter-spacing:-0.01em">You both want to keep going</h1>
 <span style="font-size:16px;color:#66595A">Your friends picked spots nearby. Choose one and head over now, or do your own thing.</span></div>
-<div class="scroll" style="display:flex;flex-direction:column;gap:10px;overflow-y:auto;min-height:0">${L.map((x,i)=>opt(i===st.pick,'pick',i,esc(x[0]),esc(x[1]))).join('')}</div>
+<div class="scroll" style="display:flex;flex-direction:column;gap:10px;overflow-y:auto;min-height:0">${L.map((x,i)=>opt(i===st.pick,'pick',i,esc(x[0])+(x[3]?' <span style="font-size:12px;font-weight:700;padding:2px 7px;border-radius:10px;background:#F6E8E8;color:#8E3F4C;vertical-align:2px">HelpMeet partner</span>':''),esc(x[1]))).join('')}</div>
 <div style="margin-top:auto;display:flex;flex-direction:column;gap:6px">
 <button type="button" data-act="letsGo" style="height:56px;flex-shrink:0;${S.primary}">Let's go!</button>
 <button type="button" data-act="ownThing" style="height:44px;${S.link}">We'll take it from here!</button></div></div>`;
@@ -317,9 +355,13 @@ function vSecond(){
  return `<div style="${S.root('24px 20px 32px',16)}">
 <header style="${S.head}display:flex;flex-direction:column;gap:4px"><span style="font-size:15px;color:#E6EFE8">Right after coffee</span><h1 style="${S.h1}">${where?esc(where):'Your own thing'}</h1><span style="font-size:16px;color:#E6EFE8">With Emily</span></header>
 <div class="rise" style="padding:26px 22px;border-radius:28px;background:#E6EFE8;display:flex;flex-direction:column;gap:10px;align-items:center;text-align:center">
-<span class="pop" style="font-size:52px">${where?'📚':'🚶'}</span>
+<span class="pop" style="font-size:52px">${where?'📍':'🚶'}</span>
 <span style="font-size:24px;font-weight:600;color:#193A29">${where?'Enjoy it!':'Have fun!'}</span>
 <span style="font-size:16px;color:#4B3F3F">${where?'Your friends get a quiet note that their pick was used. Nothing else.':'No plan needed. Your friends won\'t hear a thing.'}</span></div>
+${(()=>{const it=ideas().find(x=>x[0]===where);if(!it||!it[3])return '';
+ if(!st.partnerIn) return `<section style="padding:16px;border-radius:22px;${S.card}display:flex;flex-direction:column;gap:10px"><span style="font-size:16px;color:#4B3F3F">${esc(where)} is a HelpMeet partner. Scan the HelpMeet code at the counter so your friend gets credit.</span><button type="button" data-act="partnerIn" style="height:48px;${S.primary}font-size:17px">Scan code at the counter</button></section>`;
+ const sarah=it[2]==='Sarah';
+ return `<section class="rise" style="padding:16px;border-radius:22px;background:#F6E8E8;display:flex;flex-direction:column;gap:6px"><span style="font-size:17px;font-weight:600;color:#5A1E28">Visit confirmed</span><span style="font-size:15px;color:#4B3F3F">The friend who suggested this earns ${PTS} points toward a discount at HelpMeet partners.</span>${sarah?`<span style="font-size:14px;color:#8E3F4C">Demo: that was Sarah. She's now at ${st.sarahPts} points${st.sarahPts>=GOAL?' and unlocked 15% off.':'.'}</span>`:''}</section>`;})()}
 <p style="margin:0;font-size:16px;color:#66595A;text-align:center">Put the phone away. When you've said goodbye, wrap up here.</p>
 <button type="button" data-act="wrapUp" style="margin-top:auto;height:56px;${S.primary}">We said goodbye. Wrap up</button></div>`;
 }
@@ -398,7 +440,9 @@ function vFriend(){
 <header style="margin:-20px -20px 0;padding:20px 20px 18px;background:#24513A;color:#FFFFFF;display:flex;flex-direction:column;gap:4px;border-radius:0 0 32px 32px">
 <span style="align-self:flex-start;font-size:13px;font-weight:700;padding:3px 8px;border-radius:11px;background:#F6E8E8;color:#8E3F4C;text-transform:uppercase;letter-spacing:0.06em">Friend mode · you're Sarah</span>
 <h1 style="margin:0;font-size:28px;font-weight:700;letter-spacing:-0.01em">Help Joshua's date go well</h1>
-<span style="font-size:15px;color:#E6EFE8">${TIMES[st.time].split(' ·')[0]} · closes when the date starts</span></header>
+<span style="font-size:15px;color:#E6EFE8">${TIMES[st.time].split(' ·')[0]} · closes when the date starts</span>
+<div style="display:flex;flex-direction:column;gap:6px;margin-top:6px"><div style="display:flex;justify-content:space-between;font-size:14px;color:#E6EFE8"><span>Your points: <b style="color:#fff">${st.sarahPts}</b></span><span>${st.sarahPts>=GOAL?'15% off unlocked':(GOAL-st.sarahPts)+' to 15% off'}</span></div>
+<div style="height:8px;border-radius:999px;background:rgba(255,255,255,0.2);overflow:hidden"><div style="height:100%;border-radius:999px;background:#F4B6BF;width:${Math.min(100,st.sarahPts/GOAL*100)}%"></div></div></div></header>
 <div class="scroll" style="flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:14px">
 <section style="display:flex;gap:12px;padding:12px;${S.card}border-radius:20px">
 <div style="width:56px;height:56px;border-radius:17px;background:url(${IMG.emily}) center/cover;flex-shrink:0"></div>
@@ -411,6 +455,10 @@ function vFriend(){
 <fieldset style="border:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px">
 <legend style="font-size:16px;font-weight:700;padding:0 0 6px">Right-after ideas (up to 2)</legend>
 <span style="font-size:14px;color:#66595A;margin-top:-4px">For if they want to keep going. Near ${pl.n}, ${pl.a}.</span>
+<div style="padding:12px;border-radius:18px;background:#F6E8E8;display:flex;flex-direction:column;gap:8px">
+<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:15px;font-weight:700;color:#8E3F4C">HelpMeet partners nearby</span><span style="font-size:13px;color:#8E3F4C">+${PTS} pts if they go</span></div>
+${PARTNERS.map((p,k)=>{const on=[st.fA1,st.fA2].some(v=>v.trim().toLowerCase()===p.n.toLowerCase());return `<button type="button" data-act="addPartner" data-i="${k}" style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 12px;border-radius:14px;font-family:${F};text-align:left;${on?'border:2px solid #24513A;background:#E6EFE8;':'border:2px solid transparent;background:#FFFFFF;'}"><span style="display:flex;flex-direction:column"><span style="font-size:16px;font-weight:600;color:#231B1B">${p.n}</span><span style="font-size:13px;color:#66595A">${p.kind} · ${p.note}</span></span><span style="font-size:14px;font-weight:700;color:${on?'#193A29':'#8E3F4C'}">${on?'Added':'Add'}</span></button>`;}).join('')}
+</div>
 <input id="fA1" value="${esc(st.fA1)}" placeholder="Ice cream two blocks over" style="${S.input}height:44px">
 <input id="fA2" value="${esc(st.fA2)}" placeholder="Idea 2 (optional)" style="${S.input}height:44px"></fieldset>
 </div>
@@ -434,21 +482,50 @@ ${st.loginErr?'<span style="font-size:14px;color:#8E3F4C">That username or passw
 <button type="submit" style="height:54px;margin-top:6px;${S.primary}">Log in</button>
 </form></div>`;
 }
+
+function vQuiz(){
+ const n=QUIZ.length,done=Object.keys(st.qa).length;
+ const head=(sub)=>`<header style="${S.head}display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;justify-content:space-between;align-items:flex-end"><div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;color:#E6EFE8">Questionnaire</span><h1 style="${S.h1}">Likes and dislikes</h1></div><span style="font-size:15px;color:#E6EFE8">${sub}</span></div>
+<div style="height:10px;border-radius:999px;background:rgba(255,255,255,0.2);overflow:hidden"><div style="height:100%;border-radius:999px;background:#F4B6BF;width:${Math.round(done/n*100)}%"></div></div></header>`;
+ if(st.quizDone&&st.qView!=='retake'){
+  const group=(vals)=>QUIZ.filter(q=>vals.includes(st.qa[q[0]])).map(q=>`<span style="${S.chip}">${q[1]}</span>`).join('')||'<span style="font-size:15px;color:#66595A">None</span>';
+  const no=QUIZ.filter(q=>st.qa[q[0]]===3).map(q=>`<span style="font-size:14px;padding:6px 12px;border-radius:999px;background:#F1E9E2;color:#4B3F3F">${q[1]}</span>`).join('')||'<span style="font-size:15px;color:#66595A">None</span>';
+  return `<div style="${S.root('24px 20px 108px',14)}">${head('Done')}
+${st.justUnlocked?`<div class="pop" style="padding:18px;border-radius:24px;background:#24513A;color:#fff;display:flex;flex-direction:column;gap:6px;align-items:center;text-align:center"><span style="font-size:26px;font-weight:600">+2 swipes unlocked</span><span style="font-size:16px;color:#E6EFE8">Today's 7 is now 9. Your answers also shape who shows up.</span><button type="button" data-act="seeBonus" style="margin-top:6px;height:46px;padding:0 22px;border:none;border-radius:999px;background:#FAF6F2;color:#24513A;font:600 17px ${F}">See my 2 extra</button></div>`:''}
+<div class="scroll" style="flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:14px">
+<section style="display:flex;flex-direction:column;gap:8px"><span style="${S.label}">Love it</span><div style="display:flex;flex-wrap:wrap;gap:8px">${group([0])}</div></section>
+<section style="display:flex;flex-direction:column;gap:8px"><span style="${S.label}">Like it</span><div style="display:flex;flex-wrap:wrap;gap:8px">${group([1])}</div></section>
+<section style="display:flex;flex-direction:column;gap:8px"><span style="${S.label}">Not for me</span><div style="display:flex;flex-wrap:wrap;gap:8px">${no}</div></section>
+<p style="margin:0;font-size:14px;color:#66595A">Matches see what you have in common, never your "not for me" list. New questions each week; each set you finish unlocks 2 more swipes that day.</p>
+<button type="button" data-act="retake" style="height:46px;${S.soft}font-size:16px">Change my answers</button></div>${nav('quiz')}</div>`;
+ }
+ const i=Math.min(st.qIdx,n-1),q=QUIZ[i],cur=st.qa[q[0]];
+ const ob=(t,k)=>`<button type="button" data-act="qAns" data-i="${k}" style="height:58px;border-radius:20px;font:600 19px ${F};color:#231B1B;${cur===k?'border:3px solid #24513A;background:#E6EFE8;':'border:3px solid transparent;background:#FFFFFF;box-shadow:0 10px 28px rgba(35,27,27,0.07), inset 0 -4px 0 rgba(35,27,27,0.05);'}">${t}</button>`;
+ return `<div style="${S.root('24px 20px 108px',14)}">${head(`${i+1} of ${n}`)}
+${st.quizDone?'':`<div style="padding:10px 14px;border-radius:17px;background:#F6E8E8;color:#8E3F4C;font-size:15px;font-weight:600">Finish all ${n} to unlock 2 more swipes today.</div>`}
+<p class="rise" style="margin:6px 0 0;font-size:28px;font-weight:600;text-align:center">${q[1]}</p>
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;justify-content:center">${QOPTS.map(ob).join('')}</div>
+<div style="display:flex;justify-content:space-between">
+<button type="button" data-act="qBack" style="${S.link}font-size:16px;${i===0?'visibility:hidden':''}">Back</button>
+<button type="button" data-act="qSkip" style="border:none;background:none;color:#66595A;font:500 16px ${F};padding:8px 0">Skip</button></div>${nav('quiz')}</div>`;
+}
 /* ---------- Router ---------- */
 const HINTS={
- discover:()=>st.liked.has(EMILY)?'':st.idx===EMILY?'Read Emily\'s card, then tap <b>Like</b>.':'Swipe through Today\'s 7 with <b>Pass</b>. Emily is the friends-suggested card.',
+ discover:()=>PEOPLE[st.idx]&&PEOPLE[st.idx].bonus?'A bonus swipe from your questionnaire.':st.liked.has(EMILY)?'':st.idx===EMILY?'Read Emily\'s card, then tap <b>Like</b>.':'Swipe through Today\'s 7 with <b>Pass</b>. Emily is the friends-suggested card.',
  match:()=>'It\'s mutual. Tap <b>Plan a date</b>.',
  plan:()=>'Pick a place, a time, and which friends can help.',
  'dates-before':()=>st.friendDone?'Now <b>skip ahead</b> to the date.':'Try the friend side: write a prompt as Sarah.',
- friend:()=>'You\'re Sarah now. Write a prompt and a right-after idea.',
- 'dates-check':()=>st.youIn&&st.herIn?'Enter the code <b>4817</b>.':'Tap <b>I\'m here</b> to check in.',
+ friend:()=>'You\'re Sarah now. Write a prompt, and add a partner spot to earn points.',
+ 'dates-check':()=>st.youIn&&st.herIn?'Ask Emily for the code on her phone (<b>4817</b> in the demo).':'Tap <b>I\'m here</b> to check in.',
  prompts:()=>'Use them, skip them, or tap <b>End date</b>.',
  after:()=>st.keep===null?'Answer privately: keep going?':(st.keep&&st.herKeep?'Pick a spot and tap <b>Let\'s go!</b>':''),
- second:()=>'Tap <b>Wrap up</b> when the date is over.',again:()=>st.again===null?'One last private question.':(st.again&&st.herAgain?'Plan the next date, or finish.':''),login:()=>'',done:()=>'',matches:()=>'',profile:()=>'Church settings: try the three options.'
+ quiz:()=>st.quizDone?(st.justUnlocked?'Tap <b>See my 2 extra</b>.':''):'Tap an answer. It moves on by itself.',
+ second:()=>isPartner(st.ended)&&!st.partnerIn?'Scan the partner code so your friend earns points.':'Tap <b>Wrap up</b> when the date is over.',again:()=>st.again===null?'One last private question.':(st.again&&st.herAgain?'Plan the next date, or finish.':''),login:()=>'',done:()=>'',matches:()=>'',profile:()=>'Church settings: try the three options.'
 };
 function go(v){st.view=v;render();}
 function render(){
- const m={login:vLogin,discover:vDiscover,match:vMatch,plan:vPlan,dates:vDates,'dates-before':vDates,'dates-check':vDates,friend:vFriend,prompts:vPrompts,after:vAfter,second:vSecond,again:vAgain,done:vDone,matches:vMatches,profile:vProfile};
+ const m={quiz:vQuiz,login:vLogin,discover:vDiscover,match:vMatch,plan:vPlan,dates:vDates,'dates-before':vDates,'dates-check':vDates,friend:vFriend,prompts:vPrompts,after:vAfter,second:vSecond,again:vAgain,done:vDone,matches:vMatches,profile:vProfile};
  document.getElementById('app').innerHTML=m[st.view]();
  try{sessionStorage.setItem('hmState',JSON.stringify(Object.assign({},st,{seen:[...st.seen],liked:[...st.liked],friends:[...st.friends]})))}catch(e){}
  document.getElementById('hint').innerHTML=(HINTS[st.view]||(()=>''))();fit();
@@ -467,10 +544,10 @@ document.getElementById('app').addEventListener('click',e=>{
  }
  const a=t.dataset.act,i=+t.dataset.i;
  switch(a){
-  case 'pass': st.idx=(st.idx+1)%7;st.seen.add(st.idx);return render();
+  case 'pass': st.idx=(st.idx+1)%daily();st.seen.add(st.idx);return render();
   case 'like':
    if(st.idx===EMILY){st.liked.add(EMILY);st.matched=true;return go('match');}
-   st.liked.add(st.idx);toast('Liked. If she likes you back, you\'ll match.');st.idx=(st.idx+1)%7;st.seen.add(st.idx);return render();
+   st.liked.add(st.idx);toast('Liked. If she likes you back, you\'ll match.');st.idx=(st.idx+1)%daily();st.seen.add(st.idx);return render();
   case 'jumpEmily': st.idx=EMILY;st.seen.add(EMILY);return render();
   case 'toPlan': return go('plan');
   case 'back': return go('match');
@@ -481,6 +558,17 @@ document.getElementById('app').addEventListener('click',e=>{
   case 'toFriend': return go('friend');
   case 'fType': saveFriend();st.fType=i;return render();
   case 'friendSubmit': saveFriend();st.friendDone=true;toast('Thanks, Sarah! Back to Joshua\'s phone.');return go('dates-before');
+  case 'addPartner':{
+   saveFriend();const n=PARTNERS[i].n;
+   if(st.fA1.trim().toLowerCase()===n.toLowerCase()){st.fA1='';return render();}
+   if(st.fA2.trim().toLowerCase()===n.toLowerCase()){st.fA2='';return render();}
+   if(!st.fA1.trim()) st.fA1=n; else if(!st.fA2.trim()) st.fA2=n; else {st.fA2=n;}
+   return render();}
+  case 'partnerIn':{
+   const it=ideas().find(x=>x[0]===st.ended);
+   st.partnerIn=true;
+   if(it&&it[2]==='Sarah'){st.sarahPts+=PTS;}
+   return render();}
   case 'friendOut': saveFriend();st.fP1=st.fP2=st.fA1=st.fA2='';st.friendDone=true;toast('Sarah stepped out of this date.');return go('dates-before');
   case 'skipToDate': st.dateDay=true;return go('dates-check');
   case 'checkIn': st.youIn=true;render();setTimeout(()=>{st.herIn=true;if(st.view==='dates-check')render();},1600);return;
@@ -495,7 +583,7 @@ document.getElementById('app').addEventListener('click',e=>{
   case 'keepYes': st.keep=true;st.herKeep=false;render();setTimeout(()=>{st.herKeep=true;if(st.view==='after')render();},1300);return;
   case 'keepNo': st.keep=false;return render();
   case 'pick': st.pick=i;return render();
-  case 'letsGo': st.ended=ideas()[st.pick][0];return go('second');
+  case 'letsGo': st.ended=ideas()[st.pick][0];st.partnerIn=false;return go('second');
   case 'ownThing': st.ended='';return go('second');
   case 'finish': return go('again');
   case 'wrapUp': return go('again');
@@ -506,6 +594,21 @@ document.getElementById('app').addEventListener('click',e=>{
   case 'restart': return reset();
   case 'openEmily': if(!st.matched){st.matched=true;st.liked.add(EMILY);return go('match');} return go(st.planned?datesView():'plan');
   case 'other': return toast('In this demo, Emily\'s date is the playable one.');
+  case 'qAns':{
+   const q=QUIZ[Math.min(st.qIdx,QUIZ.length-1)];st.qa[q[0]]=i;render();
+   setTimeout(()=>{
+    if(st.qIdx<QUIZ.length-1){st.qIdx++;return render();}
+    const first=!st.quizDone;st.quizDone=true;st.qView='';st.justUnlocked=first;
+    if(first) toast('+2 swipes unlocked');
+    render();
+   },220);return;}
+  case 'qBack': st.qIdx=Math.max(0,st.qIdx-1);return render();
+  case 'qSkip':
+   if(st.qIdx<QUIZ.length-1){st.qIdx++;return render();}
+   if(Object.keys(st.qa).length<QUIZ.length) return toast('Answer the ones you skipped to finish.');
+   return render();
+  case 'retake': st.qView='retake';st.qIdx=0;st.justUnlocked=false;return render();
+  case 'seeBonus': st.justUnlocked=false;st.idx=7;st.seen.add(7);return go('discover');
   case 'church': st.church=i;return render();
   case 'invite': return toast('Invite link copied.');
  }
@@ -538,7 +641,7 @@ addEventListener('resize',fit);
 (function(){
  try{
   const j=JSON.parse(sessionStorage.getItem('hmState')||'null');
-  if(j&&j.loggedIn){Object.assign(st,j,{seen:new Set(j.seen),liked:new Set(j.liked),friends:new Set(j.friends),youIn:j.youIn,herIn:j.youIn?true:j.herIn,herKeep:j.keep?true:j.herKeep,herAgain:j.again?true:j.herAgain});return render();}
+  if(j&&j.loggedIn){reset();Object.assign(st,j,{seen:new Set(j.seen),liked:new Set(j.liked),friends:new Set(j.friends),youIn:j.youIn,herIn:j.youIn?true:j.herIn,herKeep:j.keep?true:j.herKeep,herAgain:j.again?true:j.herAgain});return render();}
  }catch(e){}
  reset();
 })();fit();
