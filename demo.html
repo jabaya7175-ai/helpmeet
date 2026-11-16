@@ -148,7 +148,7 @@ function reset(){
  Object.assign(st,{view:'discover',idx:0,seen:new Set([0]),liked:new Set(),matched:false,planned:false,
   place:0,time:1,friends:new Set([0,1]),friendDone:false,fType:0,fP1:'',fP2:'',fA1:'',fA2:'',
   youIn:false,herIn:false,codeErr:false,unlocked:false,pIdx:0,keep:null,herKeep:false,pick:0,
-  church:2,showChurch:false,ended:null,dateDay:false,loginErr:false,again:null,herAgain:false,dateNum:1,genre:0,qa:{},qIdx:0,quizDone:false,qView:'',justUnlocked:false,sarahPts:75,partnerIn:false,fA1P:false,fA2P:false});
+  church:2,showChurch:false,ended:null,dateDay:false,loginErr:false,again:null,herAgain:false,dateNum:1,genre:0,recruited:[],invited:[],inviteFor:'',bizSent:false,qa:{},qIdx:0,quizDone:false,qView:'',justUnlocked:false,sarahPts:75,partnerIn:false,fA1P:false,fA2P:false});
  go(st.loggedIn?'discover':'login');
 }
 const GENRES=[
@@ -347,11 +347,12 @@ const PARTNERS=[
  {n:'Used bookstore',note:'1 min walk',kind:'Books and coffee'},
  {n:'Corner Bakehouse',note:'0.2 mi · 4 min walk',kind:'Pie and pastries'}
 ];
-const isPartner=n=>PARTNERS.some(p=>p.n.toLowerCase()===String(n).trim().toLowerCase());
+const partners=()=>PARTNERS.concat((st.recruited||[]).map(r=>({n:r.n,note:'Nearby · new partner',kind:r.kind,scout:true})));
+const isPartner=n=>partners().some(p=>p.n.toLowerCase()===String(n).trim().toLowerCase());
 const PTS=25,GOAL=100;
 function ideas(){
  const L=[];
- const add=(n,from)=>{const p=PARTNERS.find(x=>x.n.toLowerCase()===n.toLowerCase());L.push([n,(p?p.note:'From your friends · nearby'),from,!!p]);};
+ const add=(n,from)=>{const p=partners().find(x=>x.n.toLowerCase()===n.toLowerCase());L.push([n,(p?p.note:'From your friends · nearby'),from,!!p]);};
  if(st.fA1.trim()) add(st.fA1.trim(),'Sarah');
  if(st.fA2.trim()) add(st.fA2.trim(),'Sarah');
  if(st.friends.size){
@@ -397,7 +398,7 @@ function vSecond(){
 ${(()=>{const it=ideas().find(x=>x[0]===where);if(!it||!it[3])return '';
  if(!st.partnerIn) return `<section style="padding:16px;border-radius:22px;${S.card}display:flex;flex-direction:column;gap:10px"><span style="font-size:16px;color:#4B3F3F">${esc(where)} is a HelpMeet partner. Scan the HelpMeet code at the counter so your friend gets credit.</span><button type="button" data-act="partnerIn" style="height:48px;${S.primary}font-size:17px">Scan code at the counter</button></section>`;
  const sarah=it[2]==='Sarah';
- return `<section class="rise" style="padding:16px;border-radius:22px;background:#F6E8E8;display:flex;flex-direction:column;gap:6px"><span style="font-size:17px;font-weight:600;color:#5A1E28">Visit confirmed</span><span style="font-size:15px;color:#4B3F3F">The friend who suggested this earns ${PTS} points toward a discount at HelpMeet partners.</span>${sarah?`<span style="font-size:14px;color:#8E3F4C">Demo: that was Sarah. She's now at ${st.sarahPts} points${st.sarahPts>=GOAL?' and unlocked 15% off.':'.'}</span>`:''}</section>`;})()}
+ return `<section class="rise" style="padding:16px;border-radius:22px;background:#F6E8E8;display:flex;flex-direction:column;gap:6px"><span style="font-size:17px;font-weight:600;color:#5A1E28">Visit confirmed</span><span style="font-size:15px;color:#4B3F3F">The friend who suggested this earns ${PTS} points toward a discount at HelpMeet partners.</span>${(st.recruited||[]).some(r=>r.n===where)?`<span style="font-size:14px;color:#8E3F4C">Sarah also gets +5 Local Scout points for bringing this place in.</span>`:''}${sarah?`<span style="font-size:14px;color:#8E3F4C">Demo: that was Sarah. She's now at ${st.sarahPts} points${st.sarahPts>=GOAL?' and unlocked 15% off.':'.'}</span>`:''}</section>`;})()}
 <p style="margin:0;font-size:16px;color:#66595A;text-align:center">Put the phone away. When you've said goodbye, wrap up here.</p>
 <button type="button" data-act="wrapUp" style="margin-top:auto;height:56px;${S.primary}">We said goodbye. Wrap up</button></div>`;
 }
@@ -474,7 +475,7 @@ function vFriend(){
  const pl=place();
  return `<div style="${S.root('20px 20px 24px',14)}">
 <header style="margin:-20px -20px 0;padding:20px 20px 18px;background:#24513A;color:#FFFFFF;display:flex;flex-direction:column;gap:4px;border-radius:0 0 32px 32px">
-<span style="align-self:flex-start;font-size:13px;font-weight:700;padding:3px 8px;border-radius:11px;background:#F6E8E8;color:#8E3F4C;text-transform:uppercase;letter-spacing:0.06em">Friend mode · you're Sarah</span>
+<div style="display:flex;gap:6px;flex-wrap:wrap"><span style="font-size:13px;font-weight:700;padding:3px 8px;border-radius:11px;background:#F6E8E8;color:#8E3F4C;text-transform:uppercase;letter-spacing:0.06em">Friend mode · you're Sarah</span>${(st.recruited||[]).length?`<span style="font-size:13px;font-weight:700;padding:3px 8px;border-radius:11px;background:#F4B6BF;color:#5A1E28;text-transform:uppercase;letter-spacing:0.06em">★ Local Scout</span>`:''}</div>
 <h1 style="margin:0;font-size:28px;font-weight:700;letter-spacing:-0.01em">Help Joshua's date go well</h1>
 <span style="font-size:15px;color:#E6EFE8">${slot().split(' ·')[0]} · closes when the date starts</span>
 <div style="display:flex;flex-direction:column;gap:6px;margin-top:6px"><div style="display:flex;justify-content:space-between;font-size:14px;color:#E6EFE8"><span>Your points: <b style="color:#fff">${st.sarahPts}</b></span><span>${st.sarahPts>=GOAL?'15% off unlocked':(GOAL-st.sarahPts)+' to 15% off'}</span></div>
@@ -493,10 +494,16 @@ function vFriend(){
 <span style="font-size:14px;color:#66595A;margin-top:-4px">For if they want to keep going. Near ${pl.n}, ${pl.a}.</span>
 <div style="padding:12px;border-radius:18px;background:#F6E8E8;display:flex;flex-direction:column;gap:8px">
 <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:15px;font-weight:700;color:#8E3F4C">HelpMeet partners nearby</span><span style="font-size:13px;color:#8E3F4C">+${PTS} pts if they go</span></div>
-${PARTNERS.map((p,k)=>{const on=[st.fA1,st.fA2].some(v=>v.trim().toLowerCase()===p.n.toLowerCase());return `<button type="button" data-act="addPartner" data-i="${k}" style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 12px;border-radius:14px;font-family:${F};text-align:left;${on?'border:2px solid #24513A;background:#E6EFE8;':'border:2px solid transparent;background:#FFFFFF;'}"><span style="display:flex;flex-direction:column"><span style="font-size:16px;font-weight:600;color:#231B1B">${p.n}</span><span style="font-size:13px;color:#66595A">${p.kind} · ${p.note}</span></span><span style="font-size:14px;font-weight:700;color:${on?'#193A29':'#8E3F4C'}">${on?'Added':'Add'}</span></button>`;}).join('')}
+${partners().map((p,k)=>{const on=[st.fA1,st.fA2].some(v=>v.trim().toLowerCase()===p.n.toLowerCase());return `<button type="button" data-act="addPartner" data-i="${k}" style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 12px;border-radius:14px;font-family:${F};text-align:left;${on?'border:2px solid #24513A;background:#E6EFE8;':'border:2px solid transparent;background:#FFFFFF;'}"><span style="display:flex;flex-direction:column"><span style="font-size:16px;font-weight:600;color:#231B1B">${p.n}</span><span style="font-size:13px;color:#66595A">${p.kind} · ${p.note}${p.scout?' · <b style="color:#8E3F4C">you brought them in</b>':''}</span></span><span style="font-size:14px;font-weight:700;color:${on?'#193A29':'#8E3F4C'}">${on?'Added':'Add'}</span></button>`;}).join('')}
 </div>
 <input id="fA1" value="${esc(st.fA1)}" placeholder="Ice cream two blocks over" style="${S.input}height:44px">
-<input id="fA2" value="${esc(st.fA2)}" placeholder="Idea 2 (optional)" style="${S.input}height:44px"></fieldset>
+<input id="fA2" value="${esc(st.fA2)}" placeholder="Idea 2 (optional)" style="${S.input}height:44px">
+${(()=>{const np=[st.fA1,st.fA2].map(v=>v.trim()).filter(v=>v&&!isPartner(v)&&!(st.invited||[]).includes(v));if(!np.length)return '';const n=np[0];
+return `<div class="rise" style="padding:14px;border-radius:18px;border:2px dashed #8E3F4C;background:#FFFFFF;display:flex;flex-direction:column;gap:8px">
+<span style="font-size:16px;font-weight:700;color:#5A1E28">${esc(n)} isn't a HelpMeet partner yet</span>
+<span style="font-size:14px;color:#4B3F3F">Know the owner, or go there a lot? Invite them. You earn <b>100 points</b> when they join, plus 5 every time a couple checks in there.</span>
+<button type="button" data-act="toInvite" data-n="${esc(n)}" style="height:46px;${S.primary}font-size:17px">Invite them to partner</button></div>`;})()}
+${(st.invited||[]).filter(v=>!isPartner(v)).map(v=>`<div style="padding:10px 14px;border-radius:14px;background:#F1E9E2;font-size:14px;color:#4B3F3F">Invite sent to <b>${esc(v)}</b>. Waiting on approval.</div>`).join('')}</fieldset>
 </div>
 <div style="display:flex;flex-direction:column;gap:6px">
 <button type="button" data-act="friendSubmit" style="height:52px;${S.primary}">Submit</button>
@@ -546,13 +553,76 @@ ${st.quizDone?'':`<div style="padding:10px 14px;border-radius:17px;background:#F
 <button type="button" data-act="qBack" style="${S.link}font-size:16px;${i===0?'visibility:hidden':''}">Back</button>
 <button type="button" data-act="qSkip" style="border:none;background:none;color:#66595A;font:500 16px ${F};padding:8px 0">Skip</button></div>${nav('quiz')}</div>`;
 }
+
+const fhead=(title,sub)=>`<header style="margin:-20px -20px 0;padding:16px 20px 18px;background:#24513A;color:#FFFFFF;display:flex;flex-direction:column;gap:6px;border-radius:0 0 32px 32px">
+<button type="button" data-act="toFriend" style="align-self:flex-start;border:none;background:none;color:#fff;font:400 17px ${F};padding:4px 0">Back</button>
+<span style="align-self:flex-start;font-size:13px;font-weight:700;padding:3px 8px;border-radius:11px;background:#F6E8E8;color:#8E3F4C;text-transform:uppercase;letter-spacing:0.06em">Friend mode · you're Sarah</span>
+<h1 style="margin:0;font-size:28px;font-weight:700;letter-spacing:-0.01em">${title}</h1>${sub?`<span style="font-size:15px;color:#E6EFE8">${sub}</span>`:''}</header>`;
+function qr(){
+ let h='',seed=7;const r=()=>{seed=(seed*9301+49297)%233280;return seed/233280;};
+ for(let y=0;y<21;y++)for(let x=0;x<21;x++){
+  const f=(x<7&&y<7)||(x>13&&y<7)||(x<7&&y>13);
+  let on;
+  if(f){const cx=x<7?3:17,cy=y<7?3:17,d=Math.max(Math.abs(x-cx),Math.abs(y-cy));on=d===3||d<=1;}
+  else on=r()>.5;
+  if(on)h+=`<rect x="${x}" y="${y}" width="1" height="1"/>`;
+ }
+ return `<svg viewBox="-1 -1 23 23" width="132" height="132" fill="#231B1B" shape-rendering="crispEdges" style="background:#fff;border-radius:10px">${h}</svg>`;
+}
+function vInvite(){
+ const n=st.inviteFor||'this spot';
+ const msg=`Hi! I love ${n}. I help friends plan first dates through HelpMeet, a free Christian dating app here in DFW. It suggests local spots for couples to go right after a first date. It's free to join, and you choose a small perk for couples. Here's the 2-minute sign-up:`;
+ return `<div style="${S.root('20px 20px 24px',14)}">${fhead('Invite '+esc(n),'Partner invites')}
+<div class="scroll" style="flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:14px">
+<section style="padding:18px;border-radius:24px;${S.card}display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center">
+<span style="font-size:15px;font-weight:700;color:#8E3F4C">Show this at the counter</span>
+${qr()}
+<span style="font-size:15px;color:#4B3F3F">helpmeet.app/partner/sarah-k</span></section>
+<section style="padding:16px;border-radius:22px;background:#FAF6F2;border:1.5px solid #E8DFD8;display:flex;flex-direction:column;gap:8px">
+<span style="font-size:14px;font-weight:700;color:#66595A">Or send them a message</span>
+<span style="font-size:16px;line-height:1.45">${esc(msg)} <span style="color:#24513A">helpmeet.app/partner/sarah-k</span></span>
+<button type="button" data-act="copyInvite" style="height:44px;${S.soft}font-size:16px">Copy message</button></section>
+<section style="padding:14px 16px;border-radius:20px;background:#E6EFE8;display:flex;flex-direction:column;gap:4px">
+<span style="font-size:15px;font-weight:700;color:#193A29">What to say</span>
+<span style="font-size:15px;color:#193A29">It's free, there's no commission, they pick the perk, and they can stop any time. Don't promise numbers: we're just getting started.</span></section>
+</div>
+<button type="button" data-act="toBiz" style="height:52px;flex-shrink:0;${S.primary}font-size:17px">Demo: see what the owner sees</button></div>`;
+}
+function vBiz(){
+ const n=st.inviteFor||'';
+ if(st.bizSent) return `<div style="${S.root('24px 20px 32px',16)}">
+<header style="${S.head}display:flex;flex-direction:column;gap:4px"><span style="font-size:15px;color:#E6EFE8">Owner's phone</span><h1 style="${S.h1}">Thanks, ${esc(n)}!</h1></header>
+<div class="rise" style="padding:22px;border-radius:28px;background:#E6EFE8;display:flex;flex-direction:column;gap:8px"><span style="font-size:20px;font-weight:600;color:#193A29">We'll review it within a few days.</span><span style="font-size:16px;color:#4B3F3F">Once you're approved, couples planning dates nearby can find you, and you'll get a QR card for the counter.</span></div>
+<div style="padding:12px 14px;border-radius:17px;background:#F6E8E8;color:#5A1E28;font-size:15px">Demo: in the real app, you'd approve this from your HelpMeet admin page.</div>
+<button type="button" data-act="approveBiz" style="margin-top:auto;height:56px;${S.primary}">Demo: approve as HelpMeet</button></div>`;
+ const ben=(t,d)=>`<div style="display:flex;gap:10px;align-items:flex-start"><span style="width:22px;height:22px;flex-shrink:0;border-radius:999px;background:#24513A;color:#fff;display:flex;align-items:center;justify-content:center;margin-top:2px">${check}</span><span style="font-size:15px;color:#4B3F3F"><b style="color:#231B1B">${t}</b> ${d}</span></div>`;
+ const fld=(id,l,v,ph)=>`<label for="${id}" style="font-size:15px;font-weight:700">${l}</label><input id="${id}" value="${esc(v||'')}" placeholder="${ph||''}" style="${S.input}height:46px">`;
+ return `<div style="${S.root('24px 20px 24px',12)}">
+<header style="${S.head}display:flex;flex-direction:column;gap:4px"><span style="font-size:15px;color:#E6EFE8">Owner's phone · invited by Sarah K.</span><h1 style="${S.h1}">Partner with HelpMeet</h1></header>
+<div class="scroll" style="flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:12px">
+<section style="padding:16px;border-radius:22px;${S.card}display:flex;flex-direction:column;gap:10px">
+${ben('Free.','No fees and no commission.')}
+${ben('Couples come to you,','often during slower hours, right after a first date nearby.')}
+${ben('You pick the perk','for couples, like a free cookie or 10% off.')}
+${ben('Stop any time.','One tap, no contract.')}</section>
+${fld('bName','Business name',n)}
+${fld('bContact','Your name','', 'Owner or manager')}
+${fld('bPhone','Phone or email','', 'How we reach you')}
+<label for="bKind" style="font-size:15px;font-weight:700">Kind of place</label>
+<select id="bKind" style="${S.input}height:46px">${GENRES.map(g=>`<option>${g.label}</option>`).join('')}<option>Bookstore or shop</option><option>Activity</option></select>
+${fld('bPerk','Perk for HelpMeet couples','', 'e.g. Free cookie to share')}
+${fld('bThanks','Thank-you for Sarah (optional)','', 'e.g. A free coffee on her next visit')}
+</div>
+<button type="button" data-act="bizSubmit" style="height:52px;flex-shrink:0;${S.primary}">Send for approval</button></div>`;
+}
 /* ---------- Router ---------- */
 const HINTS={
  discover:()=>PEOPLE[st.idx]&&PEOPLE[st.idx].bonus?'A bonus swipe from your questionnaire.':st.liked.has(EMILY)?'':st.idx===EMILY?'Read Emily\'s card, then tap <b>Like</b>.':'Swipe through Today\'s 7 with <b>Pass</b>. Emily is the friends-suggested card.',
  match:()=>'It\'s mutual. Tap <b>Plan a date</b>.',
  plan:()=>'Pick a kind of place, then a partner spot near you both.',
  'dates-before':()=>st.friendDone?'Now <b>skip ahead</b> to the date.':'Try the friend side: write a prompt as Sarah.',
- friend:()=>'You\'re Sarah now. Write a prompt, and add a partner spot to earn points.',
+ friend:()=>(st.recruited||[]).length?'Submit to send Sarah\'s ideas to the date.':'You\'re Sarah. Type a favorite spot that isn\'t listed, then tap out of the box.',
+ invite:()=>'Show the QR or send the message.',biz:()=>st.bizSent?'Approve it, as you would as the HelpMeet admin.':'Fill this out as the owner would.',
  'dates-check':()=>st.youIn&&st.herIn?'Ask Emily for the code on her phone (<b>4817</b> in the demo).':'Tap <b>I\'m here</b> to check in.',
  prompts:()=>'Use them, skip them, or tap <b>End date</b>.',
  after:()=>st.keep===null?'Answer privately: keep going?':(st.keep&&st.herKeep?'Pick a spot and tap <b>Let\'s go!</b>':''),
@@ -561,7 +631,7 @@ const HINTS={
 };
 function go(v){st.view=v;render();}
 function render(){
- const m={quiz:vQuiz,login:vLogin,discover:vDiscover,match:vMatch,plan:vPlan,dates:vDates,'dates-before':vDates,'dates-check':vDates,friend:vFriend,prompts:vPrompts,after:vAfter,second:vSecond,again:vAgain,done:vDone,matches:vMatches,profile:vProfile};
+ const m={quiz:vQuiz,login:vLogin,discover:vDiscover,match:vMatch,plan:vPlan,dates:vDates,'dates-before':vDates,'dates-check':vDates,friend:vFriend,invite:vInvite,biz:vBiz,prompts:vPrompts,after:vAfter,second:vSecond,again:vAgain,done:vDone,matches:vMatches,profile:vProfile};
  document.getElementById('app').innerHTML=m[st.view]();
  try{sessionStorage.setItem('hmState',JSON.stringify(Object.assign({},st,{seen:[...st.seen],liked:[...st.liked],friends:[...st.friends]})))}catch(e){}
  document.getElementById('hint').innerHTML=(HINTS[st.view]||(()=>''))();fit();
@@ -596,7 +666,7 @@ document.getElementById('app').addEventListener('click',e=>{
   case 'fType': saveFriend();st.fType=i;return render();
   case 'friendSubmit': saveFriend();st.friendDone=true;toast('Thanks, Sarah! Back to Joshua\'s phone.');return go('dates-before');
   case 'addPartner':{
-   saveFriend();const n=PARTNERS[i].n;
+   saveFriend();const n=partners()[i].n;
    if(st.fA1.trim().toLowerCase()===n.toLowerCase()){st.fA1='';return render();}
    if(st.fA2.trim().toLowerCase()===n.toLowerCase()){st.fA2='';return render();}
    if(!st.fA1.trim()) st.fA1=n; else if(!st.fA2.trim()) st.fA2=n; else {st.fA2=n;}
@@ -605,7 +675,23 @@ document.getElementById('app').addEventListener('click',e=>{
    const it=ideas().find(x=>x[0]===st.ended);
    st.partnerIn=true;
    if(it&&it[2]==='Sarah'){st.sarahPts+=PTS;}
+   if(it&&(st.recruited||[]).some(r=>r.n===it[0])){st.sarahPts+=5;st.scoutBonus=true;}
    return render();}
+  case 'toInvite': saveFriend();st.inviteFor=t.dataset.n;st.bizSent=false;return go('invite');
+  case 'copyInvite': try{navigator.clipboard&&navigator.clipboard.writeText(t.closest('section').querySelector('span:nth-of-type(2)').textContent)}catch(e){} if(!st.invited.includes(st.inviteFor))st.invited.push(st.inviteFor);return toast('Message copied');
+  case 'toBiz': if(!st.invited.includes(st.inviteFor))st.invited.push(st.inviteFor);return go('biz');
+  case 'bizSubmit':{
+   const nm=(document.getElementById('bName').value||'').trim();
+   if(!nm) return toast('Add the business name.');
+   const kind=document.getElementById('bKind').value;
+   const perk=(document.getElementById('bPerk').value||'').trim();
+   if(nm!==st.inviteFor){[ 'fA1','fA2'].forEach(k=>{if(st[k].trim()===st.inviteFor)st[k]=nm;});st.invited=st.invited.map(v=>v===st.inviteFor?nm:v);st.inviteFor=nm;}
+   st.bizKind=kind;st.bizPerk=perk;st.bizSent=true;return render();}
+  case 'approveBiz':
+   st.recruited.push({n:st.inviteFor,kind:st.bizKind||'Local spot',perk:st.bizPerk||''});
+   st.sarahPts+=100;st.bizSent=false;
+   toast(st.inviteFor+' is a partner. Sarah +100 pts');
+   return go('friend');
   case 'friendOut': saveFriend();st.fP1=st.fP2=st.fA1=st.fA2='';st.friendDone=true;toast('Sarah stepped out of this date.');return go('dates-before');
   case 'skipToDate': st.dateDay=true;return go('dates-check');
   case 'checkIn': st.youIn=true;render();setTimeout(()=>{st.herIn=true;if(st.view==='dates-check')render();},1600);return;
@@ -659,7 +745,8 @@ document.getElementById('app').addEventListener('submit',e=>{
   st.loginErr=true;render();
  });
 });
-document.getElementById('app').addEventListener('change',e=>{if(e.target.id==='showChurch'){st.showChurch=e.target.checked;render();}});
+document.getElementById('app').addEventListener('change',e=>{if(e.target.id==='showChurch'){st.showChurch=e.target.checked;render();}
+ if((e.target.id==='fA1'||e.target.id==='fA2')&&st.view==='friend'){saveFriend();render();}});
 document.getElementById('app').addEventListener('keydown',e=>{if(e.target.id==='code'&&e.key==='Enter'){document.querySelector('[data-act="unlock"]').click();}});
 document.getElementById('restart').addEventListener('click',()=>{try{sessionStorage.removeItem('hmState')}catch(e){}reset();});
 
