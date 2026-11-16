@@ -39,7 +39,7 @@ button:active,a:active{transform:scale(.95)}
 </style>
 </head>
 <body>
-<div class="top"><a href="./">← HelpMeet</a><span>Demo · you're Joshua</span><button type="button" id="restart">Restart</button></div>
+<div class="top"><a href="./">← HelpMeet</a><span id="who">Demo · you're Joshua</span><button type="button" id="restart">Restart</button></div>
 <div class="hint" id="hint"></div>
 <div class="holder" id="holder"><div class="device" id="device"><div id="app"></div><div class="toast" id="toast"></div></div></div>
 
@@ -142,6 +142,8 @@ const daily=()=>st.quizDone?9:7;
 const liked=()=>QUIZ.filter(q=>st.qa[q[0]]===0||st.qa[q[0]]===1).map(q=>q[0]);
 function common(p){const L=liked();return QUIZ.filter(q=>p.tags.includes(q[0])&&L.includes(q[0])).map(q=>q[1]);}
 
+const FRIEND_LINK=/[?&]friend\b/.test(location.search);
+const SKEY=FRIEND_LINK?'hmFriendState':'hmState';
 const st={};try{st.loggedIn=sessionStorage.getItem('hmIn')==='1'}catch(e){}
 if(location.hash==='#k=376855e6cbdd37e87eb523d49cfcbb506ad1ae1992ff39f1ee86f9bde0a53692'){st.loggedIn=true;try{sessionStorage.setItem('hmIn','1')}catch(e){}history.replaceState(null,'',location.pathname+location.search);}
 function reset(){
@@ -615,6 +617,17 @@ ${fld('bThanks','Thank-you for Sarah (optional)','', 'e.g. A free coffee on her 
 </div>
 <button type="button" data-act="bizSubmit" style="height:52px;flex-shrink:0;${S.primary}">Send for approval</button></div>`;
 }
+
+function vFriendThanks(){
+ const out=st.steppedOut;
+ return `<div style="${S.root('24px 24px 40px',16)}background:#24513A;color:#fff;align-items:center;justify-content:center;text-align:center">
+<span class="pop" style="font-size:56px">${out?'🤝':'💌'}</span>
+<h1 class="pop" style="margin:0;font-size:34px;font-weight:600">${out?'Got it.':'Thanks, Sarah!'}</h1>
+<p style="margin:0;font-size:17px;color:#E6EFE8;max-width:300px">${out?'You\'re out of this one. Joshua won\'t know you stepped out.':'Joshua and Emily will see your prompts once they\'re both there, and your ideas only if they both want to keep going.'}</p>
+<p style="margin:0;font-size:15px;color:#F4B6BF;max-width:300px">Your points: ${st.sarahPts}${(st.recruited||[]).length?' · ★ Local Scout':''}</p>
+${out?'':`<button type="button" data-act="friendEdit" style="margin-top:12px;width:100%;height:52px;border:none;border-radius:999px;background:#FAF6F2;color:#24513A;font:600 18px ${F}">Edit what I wrote</button>`}
+<a href="demo.html" style="color:#E6EFE8!important;font-size:16px;margin-top:6px">Try the dater side (login needed)</a></div>`;
+}
 /* ---------- Router ---------- */
 const HINTS={
  discover:()=>PEOPLE[st.idx]&&PEOPLE[st.idx].bonus?'A bonus swipe from your questionnaire.':st.liked.has(EMILY)?'':st.idx===EMILY?'Read Emily\'s card, then tap <b>Like</b>.':'Swipe through Today\'s 7 with <b>Pass</b>. Emily is the friends-suggested card.',
@@ -622,6 +635,7 @@ const HINTS={
  plan:()=>'Pick a kind of place, then a partner spot near you both.',
  'dates-before':()=>st.friendDone?'Now <b>skip ahead</b> to the date.':'Try the friend side: write a prompt as Sarah.',
  friend:()=>(st.recruited||[]).length?'Submit to send Sarah\'s ideas to the date.':'You\'re Sarah. Type a favorite spot that isn\'t listed, then tap out of the box.',
+ friendThanks:()=>'',
  invite:()=>'Show the QR or send the message.',biz:()=>st.bizSent?'Approve it, as you would as the HelpMeet admin.':'Fill this out as the owner would.',
  'dates-check':()=>st.youIn&&st.herIn?'Ask Emily for the code on her phone (<b>4817</b> in the demo).':'Tap <b>I\'m here</b> to check in.',
  prompts:()=>'Use them, skip them, or tap <b>End date</b>.',
@@ -631,9 +645,9 @@ const HINTS={
 };
 function go(v){st.view=v;render();}
 function render(){
- const m={quiz:vQuiz,login:vLogin,discover:vDiscover,match:vMatch,plan:vPlan,dates:vDates,'dates-before':vDates,'dates-check':vDates,friend:vFriend,invite:vInvite,biz:vBiz,prompts:vPrompts,after:vAfter,second:vSecond,again:vAgain,done:vDone,matches:vMatches,profile:vProfile};
+ const m={quiz:vQuiz,login:vLogin,discover:vDiscover,match:vMatch,plan:vPlan,dates:vDates,'dates-before':vDates,'dates-check':vDates,friend:vFriend,friendThanks:vFriendThanks,invite:vInvite,biz:vBiz,prompts:vPrompts,after:vAfter,second:vSecond,again:vAgain,done:vDone,matches:vMatches,profile:vProfile};
  document.getElementById('app').innerHTML=m[st.view]();
- try{sessionStorage.setItem('hmState',JSON.stringify(Object.assign({},st,{seen:[...st.seen],liked:[...st.liked],friends:[...st.friends]})))}catch(e){}
+ try{sessionStorage.setItem(SKEY,JSON.stringify(Object.assign({},st,{seen:[...st.seen],liked:[...st.liked],friends:[...st.friends]})))}catch(e){}
  document.getElementById('hint').innerHTML=(HINTS[st.view]||(()=>''))();fit();
 }
 let tt;
@@ -664,7 +678,8 @@ document.getElementById('app').addEventListener('click',e=>{
   case 'sendPlan': st.planned=true;toast('Sent. Emily said yes!');return go('dates-before');
   case 'toFriend': return go('friend');
   case 'fType': saveFriend();st.fType=i;return render();
-  case 'friendSubmit': saveFriend();st.friendDone=true;toast('Thanks, Sarah! Back to Joshua\'s phone.');return go('dates-before');
+  case 'friendSubmit': saveFriend();st.friendDone=true;if(st.friendOnly)return go('friendThanks');toast('Thanks, Sarah! Back to Joshua\'s phone.');return go('dates-before');
+  case 'friendEdit': return go('friend');
   case 'addPartner':{
    saveFriend();const n=partners()[i].n;
    if(st.fA1.trim().toLowerCase()===n.toLowerCase()){st.fA1='';return render();}
@@ -692,7 +707,7 @@ document.getElementById('app').addEventListener('click',e=>{
    st.sarahPts+=100;st.bizSent=false;
    toast(st.inviteFor+' is a partner. Sarah +100 pts');
    return go('friend');
-  case 'friendOut': saveFriend();st.fP1=st.fP2=st.fA1=st.fA2='';st.friendDone=true;toast('Sarah stepped out of this date.');return go('dates-before');
+  case 'friendOut': saveFriend();st.fP1=st.fP2=st.fA1=st.fA2='';st.friendDone=true;if(st.friendOnly){st.steppedOut=true;return go('friendThanks');}toast('Sarah stepped out of this date.');return go('dates-before');
   case 'skipToDate': st.dateDay=true;return go('dates-check');
   case 'checkIn': st.youIn=true;render();setTimeout(()=>{st.herIn=true;if(st.view==='dates-check')render();},1600);return;
   case 'unlock':{
@@ -748,7 +763,14 @@ document.getElementById('app').addEventListener('submit',e=>{
 document.getElementById('app').addEventListener('change',e=>{if(e.target.id==='showChurch'){st.showChurch=e.target.checked;render();}
  if((e.target.id==='fA1'||e.target.id==='fA2')&&st.view==='friend'){saveFriend();render();}});
 document.getElementById('app').addEventListener('keydown',e=>{if(e.target.id==='code'&&e.key==='Enter'){document.querySelector('[data-act="unlock"]').click();}});
-document.getElementById('restart').addEventListener('click',()=>{try{sessionStorage.removeItem('hmState')}catch(e){}reset();});
+document.getElementById('restart').addEventListener('click',()=>{try{sessionStorage.removeItem(SKEY)}catch(e){}if(FRIEND_LINK)return startFriend();reset();});
+function startFriend(){
+ reset();
+ Object.assign(st,{friendOnly:true,matched:true,planned:true,genre:0,place:0,time:1,steppedOut:false});
+ st.friends=new Set([0,1]);
+ document.getElementById('who').textContent="Demo · you're Sarah (friend)";
+ go('friend');
+}
 
 function fit(){
  const d=document.getElementById('device'),h=document.getElementById('holder');
@@ -764,7 +786,11 @@ function fit(){
 addEventListener('resize',fit);
 (function(){
  try{
-  const j=JSON.parse(sessionStorage.getItem('hmState')||'null');
+  const j=JSON.parse(sessionStorage.getItem(SKEY)||'null');
+  if(FRIEND_LINK){
+   if(j&&j.friendOnly){reset();Object.assign(st,j,{seen:new Set(j.seen),liked:new Set(j.liked),friends:new Set(j.friends)});document.getElementById('who').textContent="Demo · you're Sarah (friend)";return render();}
+   return startFriend();
+  }
   if(j&&j.loggedIn){reset();Object.assign(st,j,{seen:new Set(j.seen),liked:new Set(j.liked),friends:new Set(j.friends),youIn:j.youIn,herIn:j.youIn?true:j.herIn,herKeep:j.keep?true:j.herKeep,herAgain:j.again?true:j.herAgain});return render();}
  }catch(e){}
  reset();
